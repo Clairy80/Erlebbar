@@ -1,3 +1,4 @@
+// models/Event.js
 import mongoose from 'mongoose';
 
 const eventSchema = new mongoose.Schema({
@@ -26,8 +27,8 @@ const eventSchema = new mongoose.Schema({
   elevatorAccessible: { type: Boolean, default: false },
   languageOptions: [String],
   ratings: [{ userId: mongoose.Schema.Types.ObjectId, rating: Number, comment: String }],
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } // Optional: Ersteller des Events
-});
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Optional: Ersteller des Events
+}, { timestamps: true }); // Timestamps für createdAt und updatedAt aktivieren
 
 const Event = mongoose.model('Event', eventSchema);
 
