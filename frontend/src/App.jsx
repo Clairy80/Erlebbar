@@ -12,38 +12,49 @@ import AccessibilityToolbar from './components/AccessibilityToolbar';
 import DatenschutzPage from './pages/DatenschutzPage.jsx';
 import SpendenPage from './pages/SpendenPage.jsx';
 import 'leaflet/dist/leaflet.css';
-import { fetchGeocode, fetchEvents } from './api';
+import { geocodeLocation, fetchEvents } from "./api/api.jsx"; // ✅ Richtige API-Importe
+import './App.css';
 
 const App = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState(null);
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // 🌍 **Automatische Standortbestimmung**
   useEffect(() => {
     if (!location && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
         },
-        (error) => {
-          console.error('Fehler bei der Standortbestimmung:', error);
-        }
+        (error) => console.error('Fehler bei der Standortbestimmung:', error)
       );
     }
   }, [location]);
 
+  // 🔍 **Geocoding-Funktion bei Suchanfragen**
   const handleSearch = async (query) => {
     setSearchQuery(query);
-    const newLocation = await fetchGeocode(query);
+    const newLocation = await geocodeLocation(query); // ✅ `geocodeLocation` statt `fetchGeocode`
     if (newLocation) {
       setLocation(newLocation);
     }
   };
 
+  // 📅 **Events basierend auf der Suche abrufen**
   useEffect(() => {
     const loadEvents = async () => {
-      const fetchedEvents = await fetchEvents(searchQuery);
-      setEvents(fetchedEvents);
+      try {
+        setLoading(true);
+        const fetchedEvents = await fetchEvents(searchQuery);
+        setEvents(fetchedEvents);
+      } catch (error) {
+        setError("Fehler beim Laden der Events.");
+      } finally {
+        setLoading(false);
+      }
     };
     loadEvents();
   }, [searchQuery]);
@@ -58,8 +69,16 @@ const App = () => {
           element={
             <>
               <SearchBar onSearch={handleSearch} />
-              <Map events={events} location={location} />
-              <EventList events={events} />
+              {loading ? (
+                <p>⏳ Events werden geladen...</p>
+              ) : error ? (
+                <p>❌ {error}</p>
+              ) : (
+                <>
+                  <Map events={events} location={location} />
+                  <EventList events={events} />
+                </>
+              )}
             </>
           }
         />
