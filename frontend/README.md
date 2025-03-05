@@ -165,3 +165,25 @@ Offizielle Plugins:
 @vitejs/plugin-react – Nutzt Babel für Fast Refresh.
 
 @vitejs/plugin-react-swc – Nutzt SWC für Fast Refresh.
+
+🔥 Aktualisierungen & Fixes vom 5.3.25 🔥
+✅ Backend-Updates
+User-Authentifizierung:
+Registrierung, Login & Token-Erstellung korrigiert
+Fehler mit username-Feld behoben
+Token wird nun korrekt zurückgegeben
+Event- und Location-APIs:
+GET/POST für Events & Locations gefixt
+Routen /api/events und /api/locations funktionieren jetzt
+Schutz für verifizierte User bei geschützten Routen verbessert
+Server-Setup:
+CORS aktiviert
+Fehler mit nicht gestarteter DB-Verbindung behoben
+Server läuft stabil auf localhost:5000
+✅ Frontend-Updates
+API-Aufrufe zentralisiert in api/api.jsx
+Event- und Location-Daten in Map.jsx korrekt geladen
+Fixes für AuthContext & authService.js
+Korrektur der SearchBar.jsx, damit sie API nutzt
+ARIA-Verbesserungen für Barrierefreiheit
+Fehlermeldungen verbessert, damit API-Antworten verständlicher sind
