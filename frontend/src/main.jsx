@@ -1,22 +1,37 @@
-import React from "react";
+import React, { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
-import "./i18n";
+import "./i18n"; 
 import "./index.css";
-import 'leaflet/dist/leaflet.css';
+import "leaflet/dist/leaflet.css";
 
-// Konfiguration der Standardmarker-Icons
-import L from 'leaflet';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
-delete L.Icon.Default.prototype._getIconUrl;
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
+// 💡 Lazy Loading für Leaflet (Performance-Boost)
+import("leaflet").then((L) => {
+  import("leaflet/dist/images/marker-icon-2x.png").then((markerIcon2x) => {
+    import("leaflet/dist/images/marker-icon.png").then((markerIcon) => {
+      import("leaflet/dist/images/marker-shadow.png").then((markerShadow) => {
+        delete L.Icon.Default.prototype._getIconUrl;
+        L.Icon.Default.mergeOptions({
+          iconRetinaUrl: markerIcon2x.default,
+          iconUrl: markerIcon.default,
+          shadowUrl: markerShadow.default,
+        });
+      });
+    });
+  });
 });
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+// 🌍 Barrierefreiheit: Sicherstellen, dass das HTML-Element ein `lang`-Attribut hat
+document.documentElement.setAttribute("lang", "de");
+
+// 🚀 React.StrictMode für bessere Fehlerwarnungen in der Entwicklung
+const rootElement = document.getElementById("root");
+if (rootElement) {
+  ReactDOM.createRoot(rootElement).render(
+    <StrictMode>
+      <App />
+    </StrictMode>
+  );
+} else {
+  console.error("❌ Fehler: `#root`-Element nicht gefunden!");
+}

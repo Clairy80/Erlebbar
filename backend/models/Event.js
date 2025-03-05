@@ -1,35 +1,22 @@
-// models/Event.js
 import mongoose from 'mongoose';
 
 const eventSchema = new mongoose.Schema({
+  organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },  // Wer hat es erstellt?
   title: { type: String, required: true },
   description: { type: String },
-  date: { type: Date, required: true },
-  location: { type: String, required: true },
-  lat: { type: Number, required: true },
-  lon: { type: Number, required: true },
-  eventType: { 
-    type: String, 
-    required: true, 
-    enum: ['Konzert', 'Vortrag', 'Workshop', 'Seminar', 'Festival'] 
-  },
-  
+  date: { type: String, required: true },  // YYYY-MM-DD
+  time: { type: String, required: true },  // HH:MM
+  location: { type: mongoose.Schema.Types.ObjectId, ref: 'Location', required: true },  // Verknüpfung zur Location
   accessibilityOptions: {
     ramp: { type: Boolean, default: false },
     elevator: { type: Boolean, default: false },
     parking: { type: Boolean, default: false },
     quietRoom: { type: Boolean, default: false },
     interpreter: { type: Boolean, default: false },
-    therapyAnimals: { type: Boolean, default: false },
+    therapyAnimals: { type: Boolean, default: false }
   },
-  publicTransportProximity: { type: Boolean, default: false },
-  wcAccessible: { type: Boolean, default: false },
-  elevatorAccessible: { type: Boolean, default: false },
-  languageOptions: [String],
-  ratings: [{ userId: mongoose.Schema.Types.ObjectId, rating: Number, comment: String }],
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Optional: Ersteller des Events
-}, { timestamps: true }); // Timestamps für createdAt und updatedAt aktivieren
+  ratings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Rating' }]  // Bewertungen
+}, { timestamps: true });
 
 const Event = mongoose.model('Event', eventSchema);
-
 export default Event;

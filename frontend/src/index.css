@@ -1,4 +1,4 @@
-/* Globale CSS-Variablen */
+/* 🌍 Globale CSS-Variablen für Dark- & Light-Mode */
 :root {
   --primary-color: #646cff;
   --secondary-color: #535bf2;
@@ -8,35 +8,92 @@
   --text-color-dark: #ffffff;
   --font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   --spacing: 1rem;
+  --focus-outline: 3px solid #ffcc00; /* ✨ Gut sichtbare Fokus-Markierung */
+  --link-focus-outline: 2px solid var(--secondary-color);
+  --transition-speed: 0.2s ease-in-out;
 }
 
-/* Default Light Theme */
+/* 🌞 Default Light Theme */
 body {
   margin: 0;
   padding: 0;
   font-family: var(--font-family);
   background-color: var(--background-color-light);
   color: var(--text-color-light);
+  line-height: 1.6;
 }
 
+/* 🌚 Dark Mode */
 [data-theme="dark"] body {
   background-color: var(--background-color-dark);
   color: var(--text-color-dark);
 }
 
+/* 🎯 Bessere Fokus-Hervorhebung für Tastaturnutzer */
+*:focus {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+}
+
+/* 🎨 Links mit besseren Kontrasten & Fokus-Effekten */
 a {
   color: var(--primary-color);
   text-decoration: none;
+  transition: color var(--transition-speed);
 }
 
-a:hover {
+a:hover, a:focus {
   color: var(--secondary-color);
+  text-decoration: underline;
+  outline: var(--link-focus-outline);
 }
 
-/* Container und Basislayout */
+/* ✅ Tastaturnutzer haben deutlichen Fokus auf Buttons */
+button, input, select {
+  font-family: var(--font-family);
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid var(--primary-color);
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+button:hover, button:focus {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* 🚀 Haupt-Container */
 #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+}
+
+/* 🕶️ Stärkere Kontraste für bessere Lesbarkeit */
+@media (prefers-contrast: more) {
+  body {
+    background-color: black;
+    color: white;
+  }
+
+  a {
+    color: #ffcc00;
+  }
+
+  a:hover, a:focus {
+    color: #ff9900;
+  }
+
+  button {
+    border: 2px solid #ffcc00;
+  }
+}
+
+/* 🛑 Bewegungsanimationen für empfindliche Nutzer deaktivieren */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }

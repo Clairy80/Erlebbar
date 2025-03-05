@@ -11,15 +11,18 @@ const SearchBar = ({ onSearch }) => {
   };
 
   return (
-    <form onSubmit={handleSearch} className="form-inline my-2 my-lg-0">
+    <form onSubmit={handleSearch} aria-label="Suchleiste zur Standortsuche">
+      <label htmlFor="location-search" className="sr-only">Standort suchen</label>
       <input
+        id="location-search"
         type="text"
-        className="form-control mr-sm-2"
         placeholder="Postleitzahl oder Ort"
         value={location}
         onChange={(e) => setLocation(e.target.value)}
+        aria-describedby="search-help"
       />
-      <button className="btn btn-outline-success my-2 my-sm-0" type="submit">Suchen</button>
+      <button type="submit">Suchen</button>
+      <p id="search-help" className="sr-only">Geben Sie einen Ort oder eine PLZ ein und drücken Sie Enter</p>
     </form>
   );
 };

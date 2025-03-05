@@ -7,19 +7,18 @@ import Map from './components/Map';
 import EventList from './components/EventList';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
-import ImpressumPage from './pages/ImpressumPage'; // Import der Impressum-Seite
+import ImpressumPage from './pages/ImpressumPage';
 import AccessibilityToolbar from './components/AccessibilityToolbar';
-import 'leaflet/dist/leaflet.css';
-import axios from 'axios';
 import DatenschutzPage from './pages/DatenschutzPage.jsx';
 import SpendenPage from './pages/SpendenPage.jsx';
+import 'leaflet/dist/leaflet.css';
+import { fetchGeocode, fetchEvents } from './api';
 
 const App = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState(null);
   const [events, setEvents] = useState([]);
 
-  // Automatische Standortsuche beim initialen Laden
   useEffect(() => {
     if (!location && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -33,52 +32,20 @@ const App = () => {
     }
   }, [location]);
 
-  // handleSearch: Aktualisiert den searchQuery-State
-  const handleSearch = (query) => {
+  const handleSearch = async (query) => {
     setSearchQuery(query);
+    const newLocation = await fetchGeocode(query);
+    if (newLocation) {
+      setLocation(newLocation);
+    }
   };
 
-  // useEffect für Geocoding: Wann immer sich searchQuery ändert, wird ein Geocoding-Call ausgeführt
   useEffect(() => {
-    if (searchQuery) {
-      const fetchGeocode = async () => {
-        try {
-          const geoResponse = await axios.get(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`,
-            { headers: { 'Accept-Language': 'de' } }
-          );
-          if (geoResponse.data && geoResponse.data.length > 0) {
-            const firstResult = geoResponse.data[0];
-            setLocation({
-              lat: parseFloat(firstResult.lat),
-              lng: parseFloat(firstResult.lon),
-            });
-          } else {
-            console.warn("Kein Ergebnis für Geocoding gefunden.");
-          }
-        } catch (error) {
-          console.error('Fehler beim Geocoding:', error);
-        }
-      };
-      fetchGeocode();
-    }
-  }, [searchQuery]);
-
-  // useEffect: Lädt Events basierend auf dem Suchbegriff
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        let url = 'http://localhost:5001/api/events/search';
-        if (searchQuery) {
-          url += `?q=${encodeURIComponent(searchQuery)}`;
-        }
-        const response = await axios.get(url);
-        setEvents(response.data);
-      } catch (error) {
-        console.error('Fehler beim Laden der Events:', error);
-      }
+    const loadEvents = async () => {
+      const fetchedEvents = await fetchEvents(searchQuery);
+      setEvents(fetchedEvents);
     };
-    fetchEvents();
+    loadEvents();
   }, [searchQuery]);
 
   return (

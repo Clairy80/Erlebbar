@@ -3,18 +3,38 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <footer style={{
-      marginTop: '2rem',
-      padding: '1rem',
-      borderTop: '1px solid #ccc',
-      textAlign: 'center'
-    }}>
+    <footer 
+      role="contentinfo"
+      aria-label="Fußbereich"
+      style={{
+        marginTop: '2rem',
+        padding: '1rem',
+        borderTop: '1px solid #ccc',
+        textAlign: 'center'
+      }}
+    >
       <p>&copy; 2024 Barrierefreie Events &amp; Locations</p>
-      <div style={{ margin: '0.5rem 0' }}>
-        <Link to="/impressum" style={{ marginRight: '1rem' }}>Impressum</Link>
-        <Link to="/datenschutz" style={{ marginRight: '1rem' }}>Datenschutz</Link>
-        <Link to="/spenden">Spenden</Link>
-      </div>
+
+      {/* Navigationsbereich mit ARIA-Label */}
+      <nav aria-label="Rechtliche Links">
+        <ul style={{
+          listStyle: 'none',
+          padding: 0,
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '1rem'
+        }}>
+          <li>
+            <Link to="/impressum" aria-label="Impressum (rechtliche Informationen)">Impressum</Link>
+          </li>
+          <li>
+            <Link to="/datenschutz" aria-label="Datenschutzerklärung">Datenschutz</Link>
+          </li>
+          <li>
+            <Link to="/spenden" aria-label="Spenden für barrierefreie Events">Spenden</Link>
+          </li>
+        </ul>
+      </nav>
     </footer>
   );
 };
