@@ -1,6 +1,5 @@
 import asyncHandler from 'express-async-handler';
 import Event from '../models/Event.js';
-import fetch from 'node-fetch'; // Falls du Node.js v18+ nutzt, kannst du es entfernen
 
 // 🟢 **Event erstellen (nur für eingeloggte User)**
 export const createEvent = asyncHandler(async (req, res) => {
@@ -43,13 +42,10 @@ export const createEvent = asyncHandler(async (req, res) => {
 // 🔵 **Alle Events abrufen**
 export const getAllEvents = asyncHandler(async (req, res) => {
     console.log("🔍 getAllEvents wurde aufgerufen!");
-
     const events = await Event.find({});
     console.log("📜 Events aus MongoDB:", events);
-
     res.status(200).json(events);
 });
-
 
 // 🟣 **Ein Event per ID abrufen**
 export const getEventById = asyncHandler(async (req, res) => {

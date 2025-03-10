@@ -187,3 +187,65 @@ Fixes für AuthContext & authService.js
 Korrektur der SearchBar.jsx, damit sie API nutzt
 ARIA-Verbesserungen für Barrierefreiheit
 Fehlermeldungen verbessert, damit API-Antworten verständlicher sind
+
+🔧 Verbesserungen & Fixes (10. März 2025)
+Heute wurden folgende wichtige Verbesserungen an der App vorgenommen:
+
+✅ Suchleiste (SearchBar) global gemacht
+
+SearchBar ist jetzt nur noch in App.jsx eingebunden und nicht mehr in Map.jsx.
+Die Karte (Map.jsx) erhält die Standortdaten direkt von App.jsx.
+✅ Automatische & manuelle Standortsuche verbessert
+
+Nutzer können ihren Standort automatisch erkennen lassen.
+Eingabe von Ort oder PLZ in SearchBar aktualisiert nun zuverlässig die Karte.
+✅ Map-Logik aufgeräumt & Doppelte Elemente entfernt
+
+Karte (Map.jsx) zentriert sich jetzt korrekt, wenn ein neuer Standort eingegeben wird.
+Unnötige useState-Updates reduziert und Code optimiert.
+✅ Fehlermeldungen & Konsistenz verbessert
+
+Bessere Fehlerbehandlung für Standortsuche.
+Mehr Logging für Debugging.
+🎉 Ergebnis: Die Karte funktioniert jetzt sauber, ohne doppelte SearchBar, und Nutzer können problemlos Standorte suchen!
+
+🔥 Wichtige Info zu export default vs. export {}
+
+Wann benutzt du export default?
+
+✅ Wenn eine Datei nur eine einzige Haupt-Funktion oder ein Haupt-Objekt exportiert.Das sieht dann so aus:
+
+const connectDB = async () => {
+  // Datenbankverbindung
+};
+
+export default connectDB;
+
+Dann kannst du in einer anderen Datei einfach ohne geschweifte Klammern importieren:
+
+import connectDB from './db.js';
+
+Wann benutzt du export {} (named exports)?
+
+✅ Wenn du mehrere Funktionen aus einer Datei exportierst!Beispiel aus userController.js:
+
+export const registerUser = async (req, res) => { ... };
+export const loginUser = async (req, res) => { ... };
+export const verifyEmail = async (req, res) => { ... };
+export const getUserProfile = async (req, res) => { ... };
+
+Dann musst du sie in anderen Dateien gezielt mit geschweiften Klammern importieren:
+
+import { registerUser, loginUser, verifyEmail, getUserProfile } from '../controllers/userController.js';
+
+🚀 Was bedeutet das für dein Projekt?
+
+✅ Nutze export default in diesen Dateien:
+
+db.js (weil es nur connectDB exportiert)
+
+server.js (falls du den app-Server exportieren willst)
+
+authMiddleware.js (wenn du nur eine einzige Middleware exportierst)
+
+❌ KEIN export default in userController.js, eventController.js, locationController.js usw., weil sie mehrere Funktionen haben!

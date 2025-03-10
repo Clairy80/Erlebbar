@@ -1,6 +1,9 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+// 🔹 E-Mail-Validierungsmuster
+const emailRegex = /^\S+@\S+\.\S+$/;
+
 const userSchema = new mongoose.Schema(
   {
     username: {
@@ -8,7 +11,7 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Benutzername ist erforderlich'],
       unique: true,
       trim: true,
-      minlength: 3,
+      minlength: [3, 'Benutzername muss mindestens 3 Zeichen lang sein'],
     },
     email: {
       type: String,
@@ -16,10 +19,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       lowercase: true,
-      match: [
-        /^\S+@\S+\.\S+$/,
-        'Bitte eine gültige E-Mail-Adresse eingeben',
-      ],
+      match: [emailRegex, 'Bitte eine gültige E-Mail-Adresse eingeben'],
     },
     password: {
       type: String,
@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['user', 'organizer'],
       default: 'user',
+    },
+    isVerified: {
+      type: Boolean,
+      default: false, // 🚀 Neu: Nutzer müssen ihre E-Mail verifizieren
     },
     savedEvents: [
       {
@@ -51,12 +55,26 @@ const userSchema = new mongoose.Schema(
 
 // 🛡 **Passwort-Hashing vor dem Speichern**
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
+  try {
+    if (!this.isModified('password')) return next();
+    
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
+
+// 🔑 **Methode: Passwort überprüfen**
+userSchema.methods.checkPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// 📩 **Methode: Prüfen, ob E-Mail gültig ist**
+userSchema.statics.validateEmail = function (email) {
+  return emailRegex.test(email);
+};
 
 const User = mongoose.model('User', userSchema);
 export default User;
