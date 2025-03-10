@@ -1,22 +1,14 @@
 import mongoose from 'mongoose';
 
 const eventSchema = new mongoose.Schema({
-  organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },  // Wer hat es erstellt?
+  organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   title: { type: String, required: true },
   description: { type: String },
-  date: { type: String, required: true },  // YYYY-MM-DD
-  time: { type: String, required: true },  // HH:MM
-  location: { type: mongoose.Schema.Types.ObjectId, ref: 'Location', required: true },  // Verknüpfung zur Location
-  accessibilityOptions: {
-    ramp: { type: Boolean, default: false },
-    elevator: { type: Boolean, default: false },
-    parking: { type: Boolean, default: false },
-    quietRoom: { type: Boolean, default: false },
-    interpreter: { type: Boolean, default: false },
-    therapyAnimals: { type: Boolean, default: false }
-  },
-  ratings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Rating' }]  // Bewertungen
-}, { timestamps: true });
+  date: { type: Date, required: true },
+  time: { type: String, required: true },
+  location: { type: String, required: true },
+  accessibilityOptions: { type: [String] }
+});
 
 const Event = mongoose.model('Event', eventSchema);
 export default Event;

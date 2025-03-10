@@ -51,15 +51,16 @@ export const registerUser = async (req, res) => {
 
 // 🔑 **Benutzer-Login**
 export const loginUser = async (req, res) => {
-  const { username, password } = req.body;  
+  const { email, username, password } = req.body;  
 
   try {
     // ❌ Prüfen, ob alle Felder ausgefüllt sind
-    if (!username || !password) {
-      return res.status(400).json({ message: 'Bitte Benutzername und Passwort eingeben' });
+    if ((!email && !username) || !password) {
+      return res.status(400).json({ message: 'Bitte Benutzername oder E-Mail und Passwort eingeben' });
     }
 
-    const user = await User.findOne({ username });
+    // 🔍 Benutzer entweder per `email` oder `username` suchen
+    const user = await User.findOne({ $or: [{ email }, { username }] });
 
     if (user && (await bcrypt.compare(password, user.password))) {
       res.json({
