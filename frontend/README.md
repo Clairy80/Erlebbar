@@ -249,3 +249,9 @@ server.js (falls du den app-Server exportieren willst)
 authMiddleware.js (wenn du nur eine einzige Middleware exportierst)
 
 ❌ KEIN export default in userController.js, eventController.js, locationController.js usw., weil sie mehrere Funktionen haben!
+
+Verbesserungen und Fixes (11.3.25)
+✅ Bugfix: eventRoutes.js hatte keinen export default, jetzt behoben.
+✅ Fix in server.js: Alle Routen korrekt eingebunden.
+✅ Event-Routen angepasst: Organisatoren können Events erstellen, abrufen, aktualisieren und löschen.
+✅ Backend getestet & läuft stabil! 🚀

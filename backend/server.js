@@ -10,14 +10,8 @@ import locationRoutes from './routes/locationRoutes.js';
 import ratingRoutes from './routes/ratingRoutes.js';
 
 dotenv.config();
+connectDB();
 
-// 🔗 **Datenbank verbinden**
-connectDB()
-  .then(() => console.log('✅ Erfolgreich mit MongoDB verbunden!'))
-  .catch((err) => {
-    console.error('❌ Fehler bei der Datenbankverbindung:', err);
-    process.exit(1);
-  });
 
 const app = express();
 
@@ -38,10 +32,10 @@ app.use('/api/events', eventRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/ratings', ratingRoutes);
 
-// ✅ **Test-Route**
+/*// ✅ **Test-Route**
 app.get('/', (req, res) => {
   res.send('🚀 Server läuft & MongoDB ist verbunden!');
-});
+});*/
 
 // 🔥 **Server starten**
 const PORT = process.env.PORT || 5000;

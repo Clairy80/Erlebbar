@@ -3,14 +3,18 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   server: {
-    host: true, // Erlaubt Zugriff von anderen Geräten im Netzwerk
-    port: 5173, // Standardport für Vite
+    host: true,
+    port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000', // Backend-URL
+        target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
+        ws: false, // 🔥 WebSocket-Probleme vermeiden
       },
+    },
+    hmr: {
+      overlay: false, // 🔥 Verhindert doppelte HMR-Reloads
     },
   },
   plugins: [react()],
