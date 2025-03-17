@@ -1,0 +1,13 @@
+○ mongod.service - MongoDB Database Server
+     Loaded: loaded (]8;;file://dciadmin-ThinkPad-L15-Gen-4/usr/lib/systemd/system/mongod.service/usr/lib/systemd/system/mongod.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: inactive (dead) since Mon 2025-03-17 09:54:22 CET; 31min ago
+   Duration: 3d 20h 42min 2.761s
+       Docs: ]8;;https://docs.mongodb.org/manualhttps://docs.mongodb.org/manual]8;;
+    Process: 220601 ExecStart=/usr/bin/mongod --config /etc/mongod.conf (code=exited, status=0/SUCCESS)
+   Main PID: 220601 (code=exited, status=0/SUCCESS)
+        CPU: 4min 215ms
+
+Mär 13 13:12:19 dciadmin-ThinkPad-L15-Gen-4 systemd[1]: Started mongod.service - MongoDB Database Server.
+Mär 13 13:12:20 dciadmin-ThinkPad-L15-Gen-4 mongod[220601]: {"t":{"$date":"2025-03-13T12:12:20.115Z"},"s":"I",  "c":"CONTROL",  "id":7484500, "ctx":"main","msg":"Environment variable MONGODB_CONFIG_OVERRIDE_NOFORK == 1, overriding \"processManagement.fork\" to false"}
+Mär 17 09:54:22 dciadmin-ThinkPad-L15-Gen-4 systemd[1]: mongod.service: Deactivated successfully.
+Mär 17 09:54:22 dciadmin-ThinkPad-L15-Gen-4 systemd[1]: mongod.service: Consumed 4min 215ms CPU time, 332.8M memory peak, 0B memory swap peak.

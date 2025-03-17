@@ -51,11 +51,14 @@ const Map = ({ location }) => {
         setEvents(eventsRes.data || []);
         setLocations(locationsRes.data || []);
 
+        console.log("📍 Geladene Events:", eventsRes.data);
+        console.log("📍 Geladene Locations:", locationsRes.data);
+
         // 🌍 Falls kein Suchort gesetzt wurde, auf erstes Event oder Location zentrieren
-        if (eventsRes.data.length > 0) {
+        if (eventsRes.data.length > 0 && eventsRes.data[0].lat && eventsRes.data[0].lon) {
           setMapCenter([eventsRes.data[0].lat, eventsRes.data[0].lon]);
-        } else if (locationsRes.data.length > 0) {
-          setMapCenter([locationsRes.data[0].lat, locationsRes.data[0].lon]);
+        } else if (locationsRes.data.length > 0 && locationsRes.data[0].geo?.latitude && locationsRes.data[0].geo?.longitude) {
+          setMapCenter([locationsRes.data[0].geo.latitude, locationsRes.data[0].geo.longitude]);
         }
       } catch (err) {
         console.error("❌ Fehler beim Laden der Events oder Locations:", err);
@@ -77,6 +80,8 @@ const Map = ({ location }) => {
 
   return (
     <div>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
       {/* 🗺️ Map */}
       <MapContainer center={mapCenter} zoom={12} style={{ height: "500px", width: "100%" }} role="application">
         <TileLayer attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -89,7 +94,7 @@ const Map = ({ location }) => {
               <Popup>
                 <h3 tabIndex="0">{event.title}</h3>
                 <p>{event.description}</p>
-                <p><strong>📍 Ort:</strong> {event.location}</p>
+                <p><strong>📍 Ort:</strong> {event.location || "Keine Adresse angegeben"}</p>
               </Popup>
             </Marker>
           ) : null
@@ -97,12 +102,14 @@ const Map = ({ location }) => {
 
         {/* 🔴 Locations */}
         {locations.map((location) =>
-          location.lat && location.lon ? (
-            <Marker key={location._id} position={[location.lat, location.lon]} icon={locationIcon}>
+          location.geo?.latitude && location.geo?.longitude ? (
+            <Marker key={location._id} position={[location.geo.latitude, location.geo.longitude]} icon={locationIcon}>
               <Popup>
                 <h3 tabIndex="0">{location.name}</h3>
-                <p>{location.description}</p>
-                <p><strong>Barrierefrei:</strong> {location.accessible ? "Ja" : "Nein"}</p>
+                <p>{location.description || "Keine Beschreibung verfügbar"}</p>
+                <p><strong>📍 Adresse:</strong> {`${location.address?.street} ${location.address?.number}, ${location.address?.zip} ${location.address?.city}`}</p>
+                <p><strong>🛠 Kategorie:</strong> {location.category || "Nicht angegeben"}</p>
+                <p><strong>♿ Barrierefrei:</strong> {location.accessibility?.stepFreeAccess ? "Ja" : "Nein"}</p>
               </Popup>
             </Marker>
           ) : null

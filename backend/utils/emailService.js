@@ -9,13 +9,13 @@ const transporter =
           pass: process.env.EMAIL_PASS,
         },
       })
-    : nodemailer.createTransport({
-        host: "smtp.ethereal.email",
+      : nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
         port: 587,
         auth: {
-          user: "jerrold.schoen@ethereal.email",
-          pass: "695dFQB7rD4sAv1yNd",
-        },
-      });
+      user: 'brendan17@ethereal.email',
+        pass: 'AuVRxnEehnEHM1Dkz9'
+        }
+    });
 
 export default transporter;

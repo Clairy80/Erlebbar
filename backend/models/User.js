@@ -55,20 +55,27 @@ const userSchema = new mongoose.Schema(
 
 // 🛡 **Passwort-Hashing vor dem Speichern**
 userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+
   try {
-    if (!this.isModified('password')) return next();
-    
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
+    console.log(`🔒 Passwort erfolgreich gehasht für: ${this.email}`);
     next();
   } catch (error) {
+    console.error("❌ Fehler beim Hashen des Passworts:", error);
     next(error);
   }
 });
 
 // 🔑 **Methode: Passwort überprüfen**
 userSchema.methods.checkPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  try {
+    return await bcrypt.compare(enteredPassword, this.password);
+  } catch (error) {
+    console.error("❌ Fehler beim Passwort-Vergleich:", error);
+    return false;
+  }
 };
 
 // 📩 **Methode: Prüfen, ob E-Mail gültig ist**

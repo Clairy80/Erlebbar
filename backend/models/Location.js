@@ -13,9 +13,13 @@ const locationSchema = new mongoose.Schema({
     latitude: { type: Number, required: true },
     longitude: { type: Number, required: true },
   },
-  description: { type: String },
-  category: { type: String, enum: ['Café', 'Restaurant', 'Theater', 'Museum', 'Veranstaltungsort', 'Andere'], required: true },
-  openingHours: { type: String },
+  description: { type: String, default: "" },
+  category: {
+    type: String,
+    enum: ['Café', 'Restaurant', 'Theater', 'Museum', 'Veranstaltungsort', 'Andere'],
+    required: true,
+  },
+  openingHours: { type: String, default: "" },
   images: [{ type: String }], // Array für Bild-URLs
   
   accessibility: {
@@ -31,7 +35,7 @@ const locationSchema = new mongoose.Schema({
     assistanceAvailable: { type: Boolean, default: false },
   },
   ratings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Rating' }], // Verknüpfung zu Bewertungen
-  addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // User, der die Location hinzugefügt hat
+  addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // User, der die Location hinzugefügt hat
 }, { timestamps: true });
 
 const Location = mongoose.model('Location', locationSchema);
