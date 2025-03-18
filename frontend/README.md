@@ -255,3 +255,25 @@ Verbesserungen und Fixes (11.3.25)
 ✅ Fix in server.js: Alle Routen korrekt eingebunden.
 ✅ Event-Routen angepasst: Organisatoren können Events erstellen, abrufen, aktualisieren und löschen.
 ✅ Backend getestet & läuft stabil! 🚀
+
+Update (18.3.25)
+🚀 Was wurde zuletzt gemacht?
+🔹 Backend: Fehlerbehebung & Optimierung
+✅ MongoDB Atlas eingebunden – Verbindung stabil & doppelte Initialisierung behoben
+✅ Fehlersuche & Fixes in den Routen (Events & Locations jetzt korrekt abrufbar)
+✅ Datenbank-Validierungen verbessert (Pflichtfelder, Geolocation-Abfragen)
+✅ Event- & Location-Controller gefixt (keine doppelten Exports mehr)
+✅ Auth- & User-Handling optimiert (Verifizierungs-Flow, Login, Rollenverwaltung)
+
+🔹 Frontend: Map & UI Fixes
+✅ Map-Integration überarbeitet – Events & Locations jetzt sichtbar
+✅ Fehlende API-Endpunkte korrigiert (GET /api/events, /api/locations funktioniert)
+✅ Automatische Standortsuche getestet & bestätigt
+✅ Debugging für Ladefehler (404 & leere Daten) behoben
+✅ Design-Überarbeitung gestartet (Barrierefreiheit, Farben, Kontraste)
+
+🔹 Nächste Schritte:
+🔘 Design-Optimierung für bessere Zugänglichkeit (Farben, Kontraste, UI-Elemente)
+🔘 Seitentitel & Branding auf „Erlebbar“ ändern
+🔘 Navigationsleiste & Struktur anpassen
+🔘 Fehlermeldungen verbessern (UX-Optimierung)
