@@ -43,6 +43,8 @@ const Map = ({ location }) => {
       setLoading(true);
       setError(null);
       try {
+        console.log("📡 Events & Locations werden geladen...");
+
         const [eventsRes, locationsRes] = await Promise.all([
           axios.get("/api/events"),
           axios.get("/api/locations"),
@@ -81,6 +83,7 @@ const Map = ({ location }) => {
   return (
     <div>
       {error && <p style={{ color: "red" }}>{error}</p>}
+      {loading && <p>⏳ Karten-Daten werden geladen...</p>}
 
       {/* 🗺️ Map */}
       <MapContainer center={mapCenter} zoom={12} style={{ height: "500px", width: "100%" }} role="application">
@@ -88,31 +91,45 @@ const Map = ({ location }) => {
         <RecenterAutomatically lat={mapCenter[0]} lon={mapCenter[1]} />
 
         {/* 🔵 Events */}
-        {events.map((event) =>
-          event.lat && event.lon ? (
-            <Marker key={event._id} position={[event.lat, event.lon]} icon={eventIcon}>
-              <Popup>
-                <h3 tabIndex="0">{event.title}</h3>
-                <p>{event.description}</p>
-                <p><strong>📍 Ort:</strong> {event.location || "Keine Adresse angegeben"}</p>
-              </Popup>
-            </Marker>
-          ) : null
+        {events.length > 0 ? (
+          events.map((event) =>
+            event.lat && event.lon ? (
+              <Marker key={event._id} position={[event.lat, event.lon]} icon={eventIcon}>
+                <Popup>
+                  <h3 tabIndex="0">{event.title || "Unbekanntes Event"}</h3>
+                  <p>{event.description || "Keine Beschreibung verfügbar"}</p>
+                  <p><strong>📍 Ort:</strong> {event.location || "Keine Adresse angegeben"}</p>
+                  <p><strong>📅 Datum:</strong> {new Date(event.date).toLocaleDateString() || "Unbekannt"}</p>
+                  <p><strong>🕒 Uhrzeit:</strong> {event.time || "Unbekannt"}</p>
+                </Popup>
+              </Marker>
+            ) : null
+          )
+        ) : (
+          <p>⚠️ Keine Events gefunden!</p>
         )}
 
         {/* 🔴 Locations */}
-        {locations.map((location) =>
-          location.geo?.latitude && location.geo?.longitude ? (
-            <Marker key={location._id} position={[location.geo.latitude, location.geo.longitude]} icon={locationIcon}>
-              <Popup>
-                <h3 tabIndex="0">{location.name}</h3>
-                <p>{location.description || "Keine Beschreibung verfügbar"}</p>
-                <p><strong>📍 Adresse:</strong> {`${location.address?.street} ${location.address?.number}, ${location.address?.zip} ${location.address?.city}`}</p>
-                <p><strong>🛠 Kategorie:</strong> {location.category || "Nicht angegeben"}</p>
-                <p><strong>♿ Barrierefrei:</strong> {location.accessibility?.stepFreeAccess ? "Ja" : "Nein"}</p>
-              </Popup>
-            </Marker>
-          ) : null
+        {locations.length > 0 ? (
+          locations.map((location) =>
+            location.geo?.latitude && location.geo?.longitude ? (
+              <Marker key={location._id} position={[location.geo.latitude, location.geo.longitude]} icon={locationIcon}>
+                <Popup>
+                  <h3 tabIndex="0">{location.name || "Unbekannte Location"}</h3>
+                  <p>{location.description || "Keine Beschreibung verfügbar"}</p>
+                  <p><strong>📍 Adresse:</strong> {location.address?.street && location.address?.zip && location.address?.city
+                    ? `${location.address.street} ${location.address.number}, ${location.address.zip} ${location.address.city}`
+                    : "Keine vollständige Adresse angegeben"
+                  }</p>
+                  <p><strong>🛠 Kategorie:</strong> {location.category || "Nicht angegeben"}</p>
+               
+               '   <p><strong>♿ Barrierefrei:</strong> {location.accessibility?.stepFreeAccess ? "Ja" : "Nein"}</p>
+                </Popup>
+              </Marker>
+            ) : null
+          )
+        ) : (
+          <p>⚠️ Keine Locations gefunden!</p>
         )}
       </MapContainer>
     </div>

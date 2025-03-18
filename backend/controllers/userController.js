@@ -1,14 +1,15 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
-import transporter from '../utils/emailService.js';
 import bcrypt from 'bcryptjs';
+import transporter from '../utils/emailService.js';
+import asyncHandler from 'express-async-handler';
 
-// 🔑 Token generieren
+// 🔑 **Token generieren**
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
-// 📧 Verifizierungs-E-Mail verschicken
+// 📧 **Verifizierungs-E-Mail verschicken**
 const sendVerificationEmail = async (userEmail, verificationLink) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -27,47 +28,44 @@ const sendVerificationEmail = async (userEmail, verificationLink) => {
   }
 };
 
-// 📝 Benutzer-Registrierung (korrigiert, KEIN manuelles Passwort-Hashing)
-export const registerUser = async (req, res) => {
+// 📝 **Benutzer-Registrierung**
+export const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
-  try {
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: 'Bitte alle Felder ausfüllen.' });
-    }
-
-    const userExists = await User.findOne({ $or: [{ email }, { username }] });
-    if (userExists) {
-      return res.status(400).json({ message: 'Benutzername oder E-Mail bereits vergeben.' });
-    }
-
-    const user = await User.create({
-      username,
-      email,
-      password, // Schema übernimmt das Hashing automatisch
-      isVerified: false,
-    });
-
-    const verifyToken = generateToken(user._id);
-    const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${verifyToken}`;
-
-    await sendVerificationEmail(user.email, verifyLink);
-
-    res.status(201).json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      message: 'Registrierung erfolgreich! Bitte überprüfe deine E-Mails zur Verifizierung.',
-    });
-
-  } catch (error) {
-    console.error("❌ Fehler bei der Registrierung:", error);
-    res.status(500).json({ message: 'Registrierung fehlgeschlagen', error: error.message });
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: 'Bitte alle Felder ausfüllen.' });
   }
-};
 
-// ✅ E-Mail-Bestätigung
-export const verifyEmail = async (req, res) => {
+  // Prüfen, ob Nutzer bereits existiert
+  const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+
+  if (existingUser) {
+    return res.status(400).json({ message: 'Benutzername oder E-Mail bereits vergeben.' });
+  }
+
+  // Benutzer erstellen
+  const user = await User.create({
+    username,
+    email,
+    password, // Hashing übernimmt das Schema
+    isVerified: false,
+  });
+
+  const verifyToken = generateToken(user._id);
+  const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${verifyToken}`;
+
+  await sendVerificationEmail(user.email, verifyLink);
+
+  res.status(201).json({
+    _id: user._id,
+    username: user.username,
+    email: user.email,
+    message: 'Registrierung erfolgreich! Bitte überprüfe deine E-Mails zur Verifizierung.',
+  });
+});
+
+// ✅ **E-Mail-Bestätigung**
+export const verifyEmail = asyncHandler(async (req, res) => {
   const { token } = req.body;
 
   try {
@@ -90,49 +88,41 @@ export const verifyEmail = async (req, res) => {
     console.error("❌ Fehler bei der E-Mail-Verifizierung:", error);
     res.status(400).json({ message: 'Ungültiges oder abgelaufenes Token.' });
   }
-};
+});
 
-// 🔑 Benutzer-Login
-export const loginUser = async (req, res) => {
+// 🔑 **Benutzer-Login**
+export const loginUser = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
 
-  try {
-    if ((!email && !username) || !password) {
-      return res.status(400).json({ message: 'Bitte Benutzername oder E-Mail und Passwort eingeben.' });
-    }
-
-    const user = await User.findOne({ $or: [{ email }, { username }] });
-
-    if (!user) {
-      return res.status(401).json({ message: 'Ungültige Anmeldeinformationen.' });
-    }
-
-    if (!user.isVerified) {
-      return res.status(403).json({ message: 'E-Mail nicht verifiziert! Bitte überprüfe deine E-Mails.' });
-    }
-
-    const passwordMatch = bcrypt.compareSync(password, user.password);
-    // Schema-Methodik empfohlen
-
-    if (!passwordMatch) {
-      return res.status(401).json({ message: 'Ungültige Anmeldeinformationen.' });
-    }
-
-    res.json({
-      _id: user.id,
-      username: user.username,
-      email: user.email,
-      token: generateToken(user.id),
-    });
-
-  } catch (error) {
-    console.error("❌ Fehler beim Login:", error);
-    res.status(500).json({ message: error.message });
+  if ((!email && !username) || !password) {
+    return res.status(400).json({ message: 'Bitte Benutzername oder E-Mail und Passwort eingeben.' });
   }
-};
 
-// 🔍 Benutzerprofil abrufen (geschützt)
-export const getUserProfile = async (req, res) => {
+  const user = await User.findOne({ $or: [{ email }, { username }] });
+
+  if (!user) {
+    return res.status(401).json({ message: 'Ungültige Anmeldeinformationen.' });
+  }
+
+  if (!user.isVerified) {
+    return res.status(403).json({ message: 'E-Mail nicht verifiziert! Bitte überprüfe deine E-Mails.' });
+  }
+
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) {
+    return res.status(401).json({ message: 'Ungültige Anmeldeinformationen.' });
+  }
+
+  res.json({
+    _id: user.id,
+    username: user.username,
+    email: user.email,
+    token: generateToken(user.id),
+  });
+});
+
+// 🔍 **Benutzerprofil abrufen (geschützt)**
+export const getUserProfile = asyncHandler(async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) return res.status(404).json({ message: 'Benutzer nicht gefunden.' });
@@ -140,4 +130,4 @@ export const getUserProfile = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-};
+});

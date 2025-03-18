@@ -49,5 +49,14 @@ const startServer = async () => {
   });
 };
 
+console.log("📡 API-Server wird gestartet...");
+
+// ✅ Debugging: Routen prüfen
+console.log("🔗 Events-Route geladen:", Object.keys(eventRoutes));
+console.log("🔗 Users-Route geladen:", Object.keys(userRoutes));
+console.log("🔗 Locations-Route geladen:", Object.keys(locationRoutes));
+console.log("🔗 Ratings-Route geladen:", Object.keys(ratingRoutes));
+
+
 // 🏁 **Server starten**
 startServer();

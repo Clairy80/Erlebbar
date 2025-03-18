@@ -13,12 +13,10 @@ export const createEvent = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'Bitte alle Pflichtfelder ausfüllen: Titel, Datum, Uhrzeit!' });
     }
 
-    // ❌ **Überprüfen, ob der Benutzer eingeloggt ist**
     if (!req.user) {
         return res.status(401).json({ message: 'Nicht autorisiert. Bitte einloggen!' });
     }
 
-    // ❌ **Überprüfen, ob der Benutzer Organisator ist**
     if (req.user.role !== 'organizer') {
         return res.status(403).json({ message: 'Nur Organisatoren dürfen Events erstellen!' });
     }
@@ -26,13 +24,11 @@ export const createEvent = asyncHandler(async (req, res) => {
     let lat = null;
     let lon = null;
 
-    // 📍 **Wenn das Event NICHT online ist, muss eine Adresse angegeben werden**
     if (!isOnline) {
         if (!street || !postalCode || !city || !country) {
             return res.status(400).json({ message: 'Adresse (Straße, PLZ, Stadt, Land) ist erforderlich für physische Events!' });
         }
 
-        // 🌍 **Geolocation-Daten holen**
         try {
             console.log(`📍 Geolocation für: ${street}, ${postalCode} ${city}, ${country}`);
             const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(`${street}, ${postalCode} ${city}, ${country}`)}`);
@@ -73,7 +69,24 @@ export const createEvent = asyncHandler(async (req, res) => {
     res.status(201).json({ message: "✅ Event erfolgreich erstellt!", event });
 });
 
-// 🟠 **Event aktualisieren (nur Ersteller/Admin)**
+// 🔍 **Alle Events abrufen**
+export const getAllEvents = asyncHandler(async (req, res) => {
+    const events = await Event.find({});
+    res.status(200).json(events);
+});
+
+// 🔎 **Einzelnes Event per ID abrufen**
+export const getEventById = asyncHandler(async (req, res) => {
+    const event = await Event.findById(req.params.id);
+    
+    if (!event) {
+        return res.status(404).json({ message: 'Event nicht gefunden' });
+    }
+
+    res.json(event);
+});
+
+// 🛠 **Event aktualisieren (nur Ersteller/Admin)**
 export const updateEvent = asyncHandler(async (req, res) => {
     const event = await Event.findById(req.params.id);
 
@@ -88,7 +101,6 @@ export const updateEvent = asyncHandler(async (req, res) => {
     let lat = event.lat;
     let lon = event.lon;
 
-    // Falls die Adresse geändert wird, neue Koordinaten abrufen
     if (!event.isOnline && (req.body.street !== event.street || req.body.city !== event.city || req.body.postalCode !== event.postalCode)) {
         try {
             console.log(`📍 Neue Geolocation für: ${req.body.street}, ${req.body.postalCode} ${req.body.city}`);
@@ -128,7 +140,7 @@ export const updateEvent = asyncHandler(async (req, res) => {
     res.status(200).json({ message: "✅ Event erfolgreich aktualisiert!", event: updatedEvent });
 });
 
-// 🔴 **Event löschen (nur Ersteller/Admin)**
+// ❌ **Event löschen (nur Ersteller/Admin)**
 export const deleteEvent = asyncHandler(async (req, res) => {
     const event = await Event.findById(req.params.id);
 
@@ -144,6 +156,4 @@ export const deleteEvent = asyncHandler(async (req, res) => {
     res.status(200).json({ message: '✅ Event erfolgreich gelöscht!' });
 });
 
-// ✅ **Alle Funktionen korrekt exportieren**
-//*export { createEvent, updateEvent, deleteEvent };
-/*get event by id und get events imp*/
+
