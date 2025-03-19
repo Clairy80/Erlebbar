@@ -39,18 +39,86 @@ body {
   flex-direction: column;
 }
 
-/* 🎨 Navbar */
+/* 🎨 Navbar Styling */
 .navbar {
   width: 100%;
   background: #007bff;
-  padding: 1rem;
+  padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   color: white;
-  position: relative;
-  z-index: 999;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+/* 🏷️ Logo */
+.navbar-brand {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* 🔗 Navbar Links */
+.navbar-links {
+  list-style: none;
+  display: flex;  /* ✅ Links nebeneinander */
+  gap: 1.5rem;
+  padding: 0;
+  margin: 0;
+}
+
+/* 🌟 Einzelne Links */
+.nav-link {
+  text-decoration: none;
+  color: white;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: background 0.3s ease-in-out;
+}
+
+/* 🖱️ Hover-Effekt */
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 🌙 Dark Mode */
+[data-theme="dark"] .navbar {
+  background: #222;
+}
+
+[data-theme="dark"] .nav-link {
+  color: #f3f3f3;
+}
+
+[data-theme="dark"] .nav-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 📱 Mobile Anpassungen */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 0.5rem;
+  }
+
+  .nav-link {
+    width: 100%;
+    text-align: center;
+  }
+}
+
 
 /* 📌 Accessibility-Toolbar */
 .accessibility-toolbar {

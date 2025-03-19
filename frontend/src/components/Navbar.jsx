@@ -6,22 +6,22 @@ const Navbar = () => {
   return (
     <nav className="navbar" role="navigation" aria-label="Hauptnavigation">
       {/* 🌍 Erlebbar Branding */}
-      <h1>🌍 Erlebbar</h1>
+      <h1 className="navbar-brand">🌍 Erlebbar</h1>
 
       {/* 🔗 Navigation */}
-      <ul>
+      <ul className="navbar-links">
         <li>
-          <Link to="/" aria-label="Startseite">
+          <Link to="/" className="nav-link" aria-label="Startseite">
             <FaHome /> Start
           </Link>
         </li>
         <li>
-          <Link to="/login" aria-label="Login für registrierte Benutzer">
+          <Link to="/login" className="nav-link" aria-label="Login für registrierte Benutzer">
             <FaSignInAlt /> Login
           </Link>
         </li>
         <li>
-          <Link to="/register" aria-label="Registrierung für neue Benutzer">
+          <Link to="/register" className="nav-link" aria-label="Registrierung für neue Benutzer">
             <FaUserPlus /> Registrieren
           </Link>
         </li>
