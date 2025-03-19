@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 
 const SearchBar = ({ onLocationSelect }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -55,23 +57,42 @@ const SearchBar = ({ onLocationSelect }) => {
       className="search-bar"
       aria-label="Suchleiste zur Standortsuche"
     >
-      <label htmlFor="location-search" className="sr-only">
-        Standort suchen
-      </label>
-      <input
-        id="location-search"
-        type="text"
-        placeholder="Postleitzahl oder Ort eingeben..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        aria-describedby="search-help"
-        className="search-input"
-      />
-      <button type="submit" className="search-button">🔍 Suchen</button>
+      <div className="search-container">
+        <label htmlFor="location-search" className="sr-only">
+          Standort suchen
+        </label>
+
+        {/* 🏷️ Suchfeld mit Lupe-Icon */}
+        <div className="search-input-container">
+          <FontAwesomeIcon icon={faSearch} className="search-icon" />
+          <input
+            id="location-search"
+            type="text"
+            placeholder="Postleitzahl oder Ort eingeben..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            aria-describedby="search-help"
+            className="search-input"
+          />
+        </div>
+
+        {/* 🔘 Such-Button */}
+        <button type="submit" className="search-button">
+          <FontAwesomeIcon icon={faSearch} /> Suchen
+        </button>
+      </div>
+
       <p id="search-help" className="sr-only">
         Geben Sie einen Ort oder eine PLZ ein und drücken Sie Enter.
       </p>
-      {error && <p className="search-error" role="alert">{error}</p>}
+
+      {/* 🚨 Fehlermeldung mit Warnsymbol */}
+      {error && (
+        <p className="search-error" role="alert">
+          <FontAwesomeIcon icon={faExclamationTriangle} className="error-icon" />
+          {error}
+        </p>
+      )}
     </form>
   );
 };

@@ -13,7 +13,20 @@ import DatenschutzPage from './pages/DatenschutzPage.jsx';
 import SpendenPage from './pages/SpendenPage.jsx';
 import 'leaflet/dist/leaflet.css';
 import { geocodeLocation, fetchEvents } from "./api/api";
-import './App.css';
+import './index.css';
+
+// ✅ Leaflet-Icons ohne `require()`
+import L from "leaflet";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
 
 const App = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,7 +49,7 @@ const App = () => {
 
   // 🔍 **Geocoding-Funktion bei Suchanfragen**
   const handleSearch = async (query) => {
-    if (!query.trim()) return; // ❌ Keine leeren Suchanfragen erlauben
+    if (!query.trim()) return;
     setSearchQuery(query);
 
     try {
@@ -51,7 +64,7 @@ const App = () => {
     }
   };
 
-  // 📅 **Events basierend auf der Suche abrufen**
+  // 📅 **Events abrufen basierend auf Suchanfragen**
   useEffect(() => {
     const loadEvents = async () => {
       if (!searchQuery.trim()) return;
@@ -71,36 +84,43 @@ const App = () => {
 
   return (
     <Router>
-      <AccessibilityToolbar />
-      <Navbar />
-      <SearchBar onLocationSelect={setLocation} /> {/* 🔍 Die Suchleiste bleibt global! */}
-      
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              {loading ? (
-                <p>⏳ Events werden geladen...</p>
-              ) : error ? (
-                <p>{error}</p>
-              ) : (
-                <>
-                  <Map events={events} location={location} />
-                  <EventList events={events} />
-                </>
-              )}
-            </>
-          }
-        />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/impressum" element={<ImpressumPage />} />
-        <Route path="/datenschutz" element={<DatenschutzPage />} />
-        <Route path="/spenden" element={<SpendenPage />} />
-      </Routes>
+      <div className="app-container">
+        <AccessibilityToolbar />
+        
+        <div className="content-container">
+          <Navbar />
 
-      <Footer />
+          <main className="main-content">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <>
+                    <SearchBar onLocationSelect={setLocation} />
+                    {loading ? (
+                      <p>⏳ Events werden geladen...</p>
+                    ) : error ? (
+                      <p>{error}</p>
+                    ) : (
+                      <>
+                        <Map events={events} location={location} />
+                        <EventList events={events} />
+                      </>
+                    )}
+                  </>
+                }
+              />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/impressum" element={<ImpressumPage />} />
+              <Route path="/datenschutz" element={<DatenschutzPage />} />
+              <Route path="/spenden" element={<SpendenPage />} />
+            </Routes>
+          </main>
+
+          <Footer />
+        </div>
+      </div>
     </Router>
   );
 };

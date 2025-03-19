@@ -1,34 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const AccessibilityToolbar = () => {
-  const [theme, setTheme] = useState("light");
-  const [fontSize, setFontSize] = useState(16);
-  const [language, setLanguage] = useState("de"); // Standard auf Deutsch setzen
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+  const [fontSize, setFontSize] = useState(parseInt(localStorage.getItem("fontSize")) || 16);
+  const [language, setLanguage] = useState(localStorage.getItem("language") || "de");
   const { i18n, t } = useTranslation();
 
-  // Theme-Toggle mit ARIA-Update
+  // 🎨 Dark/Light Mode
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
     document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
   };
 
-  // Schriftgröße anpassen mit ARIA-Update
+  // 🔠 Schriftgröße
   const adjustFontSize = (change) => {
-    const newSize = fontSize + change;
+    const newSize = Math.min(Math.max(fontSize + change, 12), 24);
     setFontSize(newSize);
     document.documentElement.style.fontSize = `${newSize}px`;
+    localStorage.setItem("fontSize", newSize);
   };
 
-  // Sprache wechseln mit ARIA-Unterstützung
+  // 🌍 Sprache wechseln
   const handleLanguageChange = (e) => {
     const newLang = e.target.value;
     setLanguage(newLang);
     i18n.changeLanguage(newLang);
+    localStorage.setItem("language", newLang);
   };
 
-  // Text-to-Speech Funktionalität
+  // 🔊 Vorlesefunktion
   const speakPageContent = () => {
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(document.body.innerText);
@@ -37,28 +40,21 @@ const AccessibilityToolbar = () => {
     }
   };
 
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    document.documentElement.style.fontSize = `${fontSize}px`;
+  }, [theme, fontSize]);
+
   return (
-    <section
-      aria-labelledby="accessibility-toolbar-heading"
-      role="region"
-      style={{
-        padding: "1rem",
-        borderBottom: "1px solid gray",
-        display: "flex",
-        justifyContent: "space-around",
-        alignItems: "center",
-        background: theme === "dark" ? "#333" : "#fff",
-        color: theme === "dark" ? "#fff" : "#000",
-      }}
-    >
+    <aside className="accessibility-toolbar">
       <h2 id="accessibility-toolbar-heading" className="sr-only">
         {t('accessibilityToolbar')}
       </h2>
 
-      {/* Sprachumschaltung */}
-      <div>
-        <label htmlFor="language-select" style={{ marginRight: "0.5rem" }}>
-          {t('language')}:
+      {/* 🌍 Sprache */}
+      <div className="toolbar-item">
+        <label htmlFor="language-select" className="sr-only">
+          {t('language')}
         </label>
         <select
           id="language-select"
@@ -66,43 +62,37 @@ const AccessibilityToolbar = () => {
           onChange={handleLanguageChange}
           aria-label={t('languageSelection')}
         >
-          <option value="de">Deutsch</option>
-          <option value="en">English</option>
-          <option value="fr">Français</option>
+          <option value="de">🇩🇪</option>
+          <option value="en">🇬🇧</option>
+          <option value="fr">🇫🇷</option>
         </select>
       </div>
 
-      {/* Theme Toggle */}
-      <div>
-        <button
-          onClick={toggleTheme}
-          aria-pressed={theme === "dark"}
-          aria-label={theme === "dark" ? t('switchToLightMode') : t('switchToDarkMode')}
-        >
-          {theme === "light" ? t('darkMode') : t('lightMode')}
+      {/* 🌙 Dark Mode */}
+      <div className="toolbar-item">
+        <button onClick={toggleTheme} aria-pressed={theme === "dark"}>
+          {theme === "light" ? "🌙" : "☀️"}
         </button>
       </div>
 
-      {/* Schriftgrößensteuerung */}
-      <div>
+      {/* 🔠 Schriftgröße */}
+      <div className="toolbar-item">
         <button onClick={() => adjustFontSize(-2)} aria-label={t('decreaseFontSize')}>
           A-
         </button>
-        <span style={{ margin: "0 0.5rem" }} aria-live="polite">
-          {t('fontSize')}: {fontSize}px
-        </span>
+        <span>{fontSize}px</span>
         <button onClick={() => adjustFontSize(2)} aria-label={t('increaseFontSize')}>
           A+
         </button>
       </div>
 
-      {/* Text-to-Speech */}
-      <div>
+      {/* 🔊 Vorlesefunktion */}
+      <div className="toolbar-item">
         <button onClick={speakPageContent} aria-label={t('readPage')}>
-          {t('readPage')}
+          🔊
         </button>
       </div>
-    </section>
+    </aside>
   );
 };
 

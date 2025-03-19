@@ -12,7 +12,7 @@ const Register = () => {
     address: '',
     date: '',
     time: '',
-    eventType: 'Konzert', // Standardwert für Eventtyp
+    eventType: 'Konzert',
     accessibilityOptions: []
   });
   
@@ -26,7 +26,7 @@ const Register = () => {
     'Neurodivergenzfreundlich'
   ];
 
-  const eventTypes = ['Konzert', 'Vortrag', 'Workshop', 'Seminar', 'Festival']; // Eventtypen
+  const eventTypes = ['Konzert', 'Vortrag', 'Workshop', 'Seminar', 'Festival'];
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -54,40 +54,53 @@ const Register = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-4 bg-white shadow-lg rounded-lg">
-      <h2 className="text-xl font-bold mb-4">Registrierung</h2>
-      <form onSubmit={handleSubmit}>
-        <input type="text" name="username" placeholder="Benutzername" value={formData.username} onChange={handleChange} className="w-full p-2 mb-2 border rounded" required />
-        <input type="password" name="password" placeholder="Passwort (min. 6 Zeichen)" value={formData.password} onChange={handleChange} className="w-full p-2 mb-2 border rounded" required />
-        <select name="role" value={formData.role} onChange={handleChange} className="w-full p-2 mb-2 border rounded">
-          <option value="user">Teilnehmer*in</option>
-          <option value="organizer">Veranstalter*in</option>
+    <div className="register-container">
+      <h2>📝 Registrierung</h2>
+      {error && <p className="error-message">{error}</p>}
+      
+      <form onSubmit={handleSubmit} className="register-form">
+        <input type="text" name="username" placeholder="Benutzername" value={formData.username} onChange={handleChange} required />
+
+        <input type="password" name="password" placeholder="Passwort (min. 6 Zeichen)" value={formData.password} onChange={handleChange} required />
+
+        <label htmlFor="role">Rolle:</label>
+        <select name="role" value={formData.role} onChange={handleChange}>
+          <option value="user">👤 Teilnehmer*in</option>
+          <option value="organizer">📅 Veranstalter*in</option>
         </select>
+
         {formData.role === 'organizer' && (
           <>
-            <input type="text" name="organization" placeholder="Name der Organisation" value={formData.organization} onChange={handleChange} className="w-full p-2 mb-2 border rounded" required />
-            <input type="email" name="email" placeholder="E-Mail" value={formData.email} onChange={handleChange} className="w-full p-2 mb-2 border rounded" required />
-            <input type="text" name="address" placeholder="Adresse" value={formData.address} onChange={handleChange} className="w-full p-2 mb-2 border rounded" required />
-            <input type="date" name="date" value={formData.date} onChange={handleChange} className="w-full p-2 mb-2 border rounded" required />
-            <input type="time" name="time" value={formData.time} onChange={handleChange} className="w-full p-2 mb-2 border rounded" required />
-            <select name="eventType" value={formData.eventType} onChange={handleChange} className="w-full p-2 mb-2 border rounded">
+            <input type="text" name="organization" placeholder="Name der Organisation" value={formData.organization} onChange={handleChange} required />
+
+            <input type="email" name="email" placeholder="E-Mail" value={formData.email} onChange={handleChange} required />
+
+            <input type="text" name="address" placeholder="Adresse" value={formData.address} onChange={handleChange} required />
+
+            <input type="date" name="date" value={formData.date} onChange={handleChange} required />
+
+            <input type="time" name="time" value={formData.time} onChange={handleChange} required />
+
+            <label htmlFor="eventType">Event-Typ:</label>
+            <select name="eventType" value={formData.eventType} onChange={handleChange}>
               {eventTypes.map((type) => (
                 <option key={type} value={type}>{type}</option>
               ))}
             </select>
           </>
         )}
-        <fieldset className="mb-4">
-          <legend className="font-semibold">Barrierefreiheit</legend>
+
+        <fieldset>
+          <legend>♿ Barrierefreiheit</legend>
           {accessibilityOptions.map(option => (
-            <label key={option} className="block">
-              <input type="checkbox" value={option} checked={formData.accessibilityOptions.includes(option)} onChange={() => handleCheckboxChange(option)} className="mr-2" />
+            <label key={option}>
+              <input type="checkbox" value={option} checked={formData.accessibilityOptions.includes(option)} onChange={() => handleCheckboxChange(option)} />
               {option}
             </label>
           ))}
         </fieldset>
-        {error && <p className="text-red-500 mb-2">{error}</p>}
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Registrieren</button>
+
+        <button type="submit">🚀 Registrieren</button>
       </form>
     </div>
   );
