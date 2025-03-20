@@ -1,39 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar.jsx';
-import Footer from './components/Footer.jsx';
-import SearchBar from './components/SearchBar.jsx';
-import Map from './components/Map.jsx';
-import EventList from './components/EventList.jsx';
-import Login from './pages/Login.jsx';
-import Register from './pages/Register.jsx';
-import ImpressumPage from './pages/ImpressumPage.jsx';
-import AccessibilityToolbar from './components/AccessibilityToolbar.jsx';
-import DatenschutzPage from './pages/DatenschutzPage.jsx';
-import SpendenPage from './pages/SpendenPage.jsx';
-import 'leaflet/dist/leaflet.css';
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Navbar from "./components/Navbar.jsx";
+import Footer from "./components/Footer.jsx";
+import SearchBar from "./components/SearchBar.jsx";
+import Map from "./components/Map.jsx";
+import EventList from "./components/EventList.jsx";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+import ImpressumPage from "./pages/ImpressumPage.jsx";
+import AccessibilityToolbar from "./components/AccessibilityToolbar.jsx";
+import DatenschutzPage from "./pages/DatenschutzPage.jsx";
+import SpendenPage from "./pages/SpendenPage.jsx";
+import UserDashboardPage from "./pages/UserDashboardPage.jsx";
+
+
+import "leaflet/dist/leaflet.css";
 import { geocodeLocation, fetchEvents } from "./api/api";
-import './index.css';
-
-// ✅ Leaflet-Icons ohne `require()`
-import L from "leaflet";
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
-
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-});
+import "./index.css";
 
 const App = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [user, setUser] = useState(null); // 🆕 Nutzerstatus speichern
 
   // 🌍 **Automatische Standortbestimmung**
   useEffect(() => {
@@ -42,14 +33,14 @@ const App = () => {
         (position) => {
           setLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
         },
-        (error) => console.warn('⚠️ Geolocation fehlgeschlagen oder blockiert:', error)
+        (error) => console.warn("⚠️ Geolocation fehlgeschlagen oder blockiert:", error)
       );
     }
   }, [location]);
 
   // 🔍 **Geocoding-Funktion bei Suchanfragen**
   const handleSearch = async (query) => {
-    if (!query.trim()) return;
+    if (!query.trim()) return; // ❌ Keine leeren Suchanfragen erlauben
     setSearchQuery(query);
 
     try {
@@ -64,17 +55,20 @@ const App = () => {
     }
   };
 
-  // 📅 **Events abrufen basierend auf Suchanfragen**
+  // 📅 **Events abrufen**
   useEffect(() => {
     const loadEvents = async () => {
       if (!searchQuery.trim()) return;
       setLoading(true);
       setError(null);
       try {
+        console.log("📡 Starte Abruf von Events für:", searchQuery);
         const fetchedEvents = await fetchEvents(searchQuery);
+        console.log("📦 API-Antwort für Events:", fetchedEvents);
         setEvents(fetchedEvents);
       } catch (err) {
-        setError("❌ Fehler beim Laden der Events.");
+        console.error("❌ Fehler beim Laden der Events:", err);
+        setError("Fehler beim Laden der Events.");
       } finally {
         setLoading(false);
       }
@@ -82,45 +76,55 @@ const App = () => {
     loadEvents();
   }, [searchQuery]);
 
+  // 🛠 **Login-Status prüfen**
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setUser(true);
+    }
+  }, []);
+
+  // 🔐 **Login-geschützte Route**
+  const ProtectedRoute = ({ element }) => {
+    return user ? element : <Navigate to="/login" />;
+  };
+
   return (
     <Router>
-      <div className="app-container">
-        <AccessibilityToolbar />
-        
-        <div className="content-container">
-          <Navbar />
+      <AccessibilityToolbar />
+      <Navbar />
 
-          <main className="main-content">
-            <Routes>
-              <Route
-                path="/"
-                element={
+      <main className="main-content">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <SearchBar onLocationSelect={setLocation} />
+                
+                {loading ? (
+                  <p>⏳ Events werden geladen...</p>
+                ) : error ? (
+                  <p>{error}</p>
+                ) : (
                   <>
-                    <SearchBar onLocationSelect={setLocation} />
-                    {loading ? (
-                      <p>⏳ Events werden geladen...</p>
-                    ) : error ? (
-                      <p>{error}</p>
-                    ) : (
-                      <>
-                        <Map events={events} location={location} />
-                        <EventList events={events} />
-                      </>
-                    )}
+                    <Map events={events} location={location} />
+                    <EventList events={events} />
                   </>
-                }
-              />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/impressum" element={<ImpressumPage />} />
-              <Route path="/datenschutz" element={<DatenschutzPage />} />
-              <Route path="/spenden" element={<SpendenPage />} />
-            </Routes>
-          </main>
+                )}
+              </>
+            }
+          />
+          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/impressum" element={<ImpressumPage />} />
+          <Route path="/datenschutz" element={<DatenschutzPage />} />
+          <Route path="/spenden" element={<SpendenPage />} />
+          <Route path="/dashboard" element={<ProtectedRoute element={<UserDashboardPage />} />} />
+        </Routes>
+      </main>
 
-          <Footer />
-        </div>
-      </div>
+      <Footer />
     </Router>
   );
 };

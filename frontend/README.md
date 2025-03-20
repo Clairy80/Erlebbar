@@ -277,3 +277,35 @@ Update (18.3.25)
 🔘 Seitentitel & Branding auf „Erlebbar“ ändern
 🔘 Navigationsleiste & Struktur anpassen
 🔘 Fehlermeldungen verbessern (UX-Optimierung)
+
+Neuer Plan (20.3.25)
+
+/frontend
+│── /src
+│   ├── /components
+│   │   ├── Navbar.jsx
+│   │   ├── Footer.jsx
+│   │   ├── SearchBar.jsx
+│   │   ├── Map.jsx
+│   │   ├── EventList.jsx  ✅ (🆕 Hier wird das Speichern & Bewerten ergänzt)
+│   │   ├── AccessibilityToolbar.jsx
+│   │   ├── PrivateRoute.jsx ✅ (🆕 Falls Login-Bereich geschützt sein soll)
+│   │   ├── UserDashboard.jsx ✅ (🆕 Zeigt gespeicherte Events)
+│   ├── /pages
+│   │   ├── Login.jsx
+│   │   ├── Register.jsx
+│   │   ├── ImpressumPage.jsx
+│   │   ├── DatenschutzPage.jsx
+│   │   ├── SpendenPage.jsx
+│   │   ├── UserDashboardPage.jsx ✅ (🆕 Mein Bereich)
+│   ├── /api
+│   │   ├── api.js ✅ (Falls API-Aufrufe zentral verwaltet werden)
+│   ├── App.jsx ✅ (Routen für Login & User-Dashboard ergänzen)
+│   ├── index.css
+│   ├── main.jsx
+│── /backend
+│   ├── /routes
+│   │   ├── eventRoutes.js ✅ (🆕 Event speichern & bewerten API)
+│   ├── /controllers
+│   │   ├── eventController.js ✅ (🆕 Methoden für Speicherung & Bewertung)
+│   ├── server.js

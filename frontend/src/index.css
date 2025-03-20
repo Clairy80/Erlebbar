@@ -37,17 +37,23 @@ body {
   padding-left: 70px; /* Platz für Toolbar */
   display: flex;
   flex-direction: column;
+  margin-top: 80px; /* ✅ Platz für die Navbar, damit sie nichts überdeckt */
 }
 
 /* 🎨 Navbar Styling */
 .navbar {
-  width: 100%;
+  width: calc(100% - 70px); /* ✅ Volle Breite, aber Toolbar bleibt sichtbar */
   background: #007bff;
   padding: 1rem 2rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: center; /* ✅ Links zentriert */
   align-items: center;
   color: white;
+  position: fixed; /* ✅ Fixiert oben */
+  top: 0;
+  left: 70px; /* ✅ Toolbar berücksichtigen */
+  height: 60px;
+  z-index: 1000;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -55,14 +61,17 @@ body {
 .navbar-brand {
   font-size: 1.8rem;
   font-weight: bold;
-  margin: 0;
+  white-space: nowrap;
+  margin-right: auto; /* ✅ Links ausgerichtet */
 }
 
 /* 🔗 Navbar Links */
 .navbar-links {
   list-style: none;
-  display: flex;  /* ✅ Links nebeneinander */
-  gap: 1.5rem;
+  display: flex;
+  justify-content: center; /* ✅ Links in die Mitte */
+  align-items: center;
+  gap: 2rem;
   padding: 0;
   margin: 0;
 }
@@ -78,6 +87,7 @@ body {
   padding: 0.5rem 1rem;
   border-radius: 8px;
   transition: background 0.3s ease-in-out;
+  white-space: nowrap; /* ✅ Kein Abschneiden */
 }
 
 /* 🖱️ Hover-Effekt */
@@ -99,26 +109,31 @@ body {
 }
 
 /* 📱 Mobile Anpassungen */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .navbar {
     flex-direction: column;
-    align-items: center;
+    height: auto;
     padding: 1rem;
+    left: 0;
+    width: 100%;
   }
 
   .navbar-links {
     flex-direction: column;
     gap: 1rem;
     align-items: center;
-    margin-top: 0.5rem;
+    width: 100%;
   }
 
   .nav-link {
     width: 100%;
     text-align: center;
   }
-}
 
+  #root {
+    margin-top: 100px; /* ✅ Mehr Platz für Navbar */
+  }
+}
 
 /* 📌 Accessibility-Toolbar */
 .accessibility-toolbar {
@@ -161,7 +176,7 @@ body {
 /* 📍 Map-Anpassungen */
 .map-container {
   flex-grow: 1;
-  width: calc(100% - 70px); /* Platz für Toolbar */
+  width: calc(100% - 70px);
   height: 70vh;
   display: flex;
   justify-content: center;
@@ -194,6 +209,7 @@ body {
   border-radius: 5px;
   text-align: center;
   z-index: 5;
+  margin: 1rem auto; /* ✅ Zentriert unter Navbar */
 }
 
 /* 📑 Eventliste */
@@ -240,3 +256,59 @@ body {
     text-align: center;
   }
 }
+
+.dashboard-container {
+  max-width: 800px;
+  margin: 80px auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.logout-btn {
+  background: #ff4d4d;
+  color: white;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: #cc0000;
+}
+
+.event-list {
+  list-style: none;
+  padding: 0;
+}
+
+.event-item {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: #f9f9f9;
+}
+
+.rating {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.star {
+  font-size: 1.5rem;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.star.filled {
+  color: #ffd700;
+}
+

@@ -50,11 +50,14 @@ const Map = ({ location }) => {
           axios.get("/api/locations"),
         ]);
 
+        console.log("📦 API-Antwort für Events:", eventsRes.data);
+        console.log("📦 API-Antwort für Locations:", locationsRes.data);
+
         setEvents(eventsRes.data || []);
         setLocations(locationsRes.data || []);
 
-        console.log("📍 Geladene Events:", eventsRes.data);
-        console.log("📍 Geladene Locations:", locationsRes.data);
+        console.log("✅ State nach API-Aufruf (Events):", eventsRes.data);
+        console.log("✅ State nach API-Aufruf (Locations):", locationsRes.data);
 
         // 🌍 Falls kein Suchort gesetzt wurde, auf erstes Event oder Location zentrieren
         if (eventsRes.data.length > 0 && eventsRes.data[0].lat && eventsRes.data[0].lon) {
@@ -76,9 +79,13 @@ const Map = ({ location }) => {
   // 📍 Wenn ein neuer Standort gesucht wird, aktualisiere `mapCenter`
   useEffect(() => {
     if (location) {
+      console.log("🔄 Neuer Standort wurde gesetzt:", location);
       setMapCenter(location);
     }
   }, [location]);
+
+  console.log("📌 State-Werte vor Rendering (Events):", events);
+  console.log("📌 State-Werte vor Rendering (Locations):", locations);
 
   return (
     <div>
@@ -122,8 +129,7 @@ const Map = ({ location }) => {
                     : "Keine vollständige Adresse angegeben"
                   }</p>
                   <p><strong>🛠 Kategorie:</strong> {location.category || "Nicht angegeben"}</p>
-               
-               '   <p><strong>♿ Barrierefrei:</strong> {location.accessibility?.stepFreeAccess ? "Ja" : "Nein"}</p>
+                  <p><strong>♿ Barrierefrei:</strong> {location.accessibility?.stepFreeAccess ? "Ja" : "Nein"}</p>
                 </Popup>
               </Marker>
             ) : null
