@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import SearchBar from "./components/SearchBar.jsx";
@@ -12,7 +12,7 @@ import AccessibilityToolbar from "./components/AccessibilityToolbar.jsx";
 import DatenschutzPage from "./pages/DatenschutzPage.jsx";
 import SpendenPage from "./pages/SpendenPage.jsx";
 import UserDashboardPage from "./pages/UserDashboardPage.jsx";
-
+import PrivateRoute from "./components/PrivateRoute.jsx"; // 🔐 Import
 
 import "leaflet/dist/leaflet.css";
 import { geocodeLocation, fetchEvents } from "./api/api";
@@ -24,7 +24,6 @@ const App = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null); // 🆕 Nutzerstatus speichern
 
   // 🌍 **Automatische Standortbestimmung**
   useEffect(() => {
@@ -76,19 +75,6 @@ const App = () => {
     loadEvents();
   }, [searchQuery]);
 
-  // 🛠 **Login-Status prüfen**
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      setUser(true);
-    }
-  }, []);
-
-  // 🔐 **Login-geschützte Route**
-  const ProtectedRoute = ({ element }) => {
-    return user ? element : <Navigate to="/login" />;
-  };
-
   return (
     <Router>
       <AccessibilityToolbar />
@@ -115,12 +101,14 @@ const App = () => {
               </>
             }
           />
-          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/impressum" element={<ImpressumPage />} />
           <Route path="/datenschutz" element={<DatenschutzPage />} />
           <Route path="/spenden" element={<SpendenPage />} />
-          <Route path="/dashboard" element={<ProtectedRoute element={<UserDashboardPage />} />} />
+          
+          {/* 🔐 Private Route für Dashboard */}
+          <Route path="/dashboard" element={<PrivateRoute element={<UserDashboardPage />} />} />
         </Routes>
       </main>
 

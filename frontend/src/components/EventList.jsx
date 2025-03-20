@@ -1,25 +1,38 @@
 import React, { useEffect } from 'react';
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock } from 'react-icons/fa';
 
-const EventList = ({ events }) => {
+const EventList = ({ events, searchQuery }) => {
   useEffect(() => {
     console.log("🎯 Empfangene Events in EventList:", events);
   }, [events]);
-  
-  useEffect(() => {
-    console.log("🎯 Empfangene Events in EventList:", events);
-  }, [events]); // ✅ Wird immer ausgeführt, wenn sich events ändern
 
+  // Falls keine Events gefunden wurden, zeige stattdessen den Suchort (falls vorhanden)
   if (!events || events.length === 0) {
-    return <p role="status" aria-live="polite" style={{ color: "red", fontWeight: "bold" }}>⚠️ Keine Events gefunden.</p>;
+    return (
+      <p 
+        role="status" 
+        aria-live="polite" 
+        style={{ color: "red", fontWeight: "bold", textAlign: "center", marginTop: "1rem" }}
+      >
+        {searchQuery ? `🔍 Keine Events in "${searchQuery}" gefunden.` : ""}
+      </p>
+    );
   }
 
   return (
     <section
       aria-labelledby="event-list-heading"
-      style={{ marginTop: '1rem', textAlign: 'left', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}
+      style={{ 
+        marginTop: '1rem', 
+        textAlign: 'left', 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+        gap: '1rem' 
+      }}
     >
-      <h2 id="event-list-heading" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Verfügbare Events</h2>
+      <h2 id="event-list-heading" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>
+        Verfügbare Events
+      </h2>
 
       {events.map(event => (
         <article

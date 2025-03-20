@@ -102,13 +102,17 @@ const Map = ({ location }) => {
           events.map((event) =>
             event.lat && event.lon ? (
               <Marker key={event._id} position={[event.lat, event.lon]} icon={eventIcon}>
-                <Popup>
-                  <h3 tabIndex="0">{event.title || "Unbekanntes Event"}</h3>
-                  <p>{event.description || "Keine Beschreibung verfügbar"}</p>
-                  <p><strong>📍 Ort:</strong> {event.location || "Keine Adresse angegeben"}</p>
-                  <p><strong>📅 Datum:</strong> {new Date(event.date).toLocaleDateString() || "Unbekannt"}</p>
-                  <p><strong>🕒 Uhrzeit:</strong> {event.time || "Unbekannt"}</p>
-                </Popup>
+<Popup>
+  <h3 tabIndex="0">{event.title || "Unbekanntes Event"}</h3>
+  <p>{event.description || "Keine Beschreibung verfügbar"}</p>
+  <p><strong>📍 Ort:</strong> {event.location || "Keine Adresse angegeben"}</p>
+  <p><strong>📅 Datum:</strong> {new Date(event.date).toLocaleDateString() || "Unbekannt"}</p>
+  <p><strong>🕒 Uhrzeit:</strong> {event.time || "Unbekannt"}</p>
+  <p><strong>⭐ Bewertung:</strong> {event.rating ? `${event.rating} Sterne` : "Noch keine Bewertung"}</p>
+  <p><strong>♿ Barrierefreiheit:</strong> {event.accessible ? "Ja" : "Nein"}</p>
+  <p><strong>👨‍👩‍👧‍👦 Geeignet für:</strong> {event.suitableFor || "Keine Angabe"}</p>
+</Popup>
+
               </Marker>
             ) : null
           )
