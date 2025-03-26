@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import SearchBar from "./components/SearchBar.jsx";
@@ -12,7 +12,7 @@ import AccessibilityToolbar from "./components/AccessibilityToolbar.jsx";
 import DatenschutzPage from "./pages/DatenschutzPage.jsx";
 import SpendenPage from "./pages/SpendenPage.jsx";
 import UserDashboardPage from "./pages/UserDashboardPage.jsx";
-import PrivateRoute from "./components/PrivateRoute.jsx"; // 🔐 Import
+import PrivateRoute from "./components/PrivateRoute.jsx"; // 🔐 Private Route
 
 import "leaflet/dist/leaflet.css";
 import { geocodeLocation, fetchEvents } from "./api/api";
@@ -24,9 +24,11 @@ const App = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [user, setUser] = useState(null); // 🔐 Speichert den Login-Status
 
   // 🌍 **Automatische Standortbestimmung**
   useEffect(() => {
+    console.log("📡 Geladene Events im App State:", events);
     if (!location && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -39,7 +41,7 @@ const App = () => {
 
   // 🔍 **Geocoding-Funktion bei Suchanfragen**
   const handleSearch = async (query) => {
-    if (!query.trim()) return; // ❌ Keine leeren Suchanfragen erlauben
+    if (!query.trim()) return;
     setSearchQuery(query);
 
     try {
@@ -75,6 +77,14 @@ const App = () => {
     loadEvents();
   }, [searchQuery]);
 
+  // 🔐 **Login-Status prüfen**
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setUser(true);
+    }
+  }, []);
+
   return (
     <Router>
       <AccessibilityToolbar />
@@ -87,7 +97,7 @@ const App = () => {
             element={
               <>
                 <SearchBar onLocationSelect={setLocation} />
-                
+
                 {loading ? (
                   <p>⏳ Events werden geladen...</p>
                 ) : error ? (
@@ -95,20 +105,23 @@ const App = () => {
                 ) : (
                   <>
                     <Map events={events} location={location} />
-                    <EventList events={events} />
+                    <EventList events={events} searchQuery={searchQuery} />
                   </>
                 )}
               </>
             }
           />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/register" element={<Register />} />
           <Route path="/impressum" element={<ImpressumPage />} />
           <Route path="/datenschutz" element={<DatenschutzPage />} />
           <Route path="/spenden" element={<SpendenPage />} />
-          
+
           {/* 🔐 Private Route für Dashboard */}
-          <Route path="/dashboard" element={<PrivateRoute element={<UserDashboardPage />} />} />
+          <Route
+            path="/dashboard"
+            element={user ? <UserDashboardPage /> : <Navigate to="/login" />}
+          />
         </Routes>
       </main>
 

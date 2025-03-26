@@ -9,20 +9,20 @@ import {
 import { protect, authenticateOrganizer } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
-
-// 📌 **Event erstellen (nur für eingeloggte Organisatoren)**
+// 📌 Event erstellen (nur für eingeloggte Organisatoren)
 router.post('/', protect, authenticateOrganizer, createEvent);
 
-// 📌 **Alle Events abrufen (öffentlich für Map)**
+// 📌 Alle Events abrufen (öffentlich für Map)
 router.get('/', getAllEvents);
 
-// 📌 **Einzelnes Event abrufen**
+// 📌 Einzelnes Event abrufen
 router.get('/:id', getEventById);
 
-// 📌 **Event aktualisieren (nur für Organisatoren)**
+// 📌 Event aktualisieren (nur für Organisatoren)
 router.put('/:id', protect, authenticateOrganizer, updateEvent);
 
-// 📌 **Event löschen (nur für Organisatoren)**
+// 📌 Event löschen (nur für Organisatoren)
 router.delete('/:id', protect, authenticateOrganizer, deleteEvent);
+
 
 export default router;

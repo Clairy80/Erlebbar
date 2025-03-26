@@ -30,24 +30,22 @@ const sendVerificationEmail = async (userEmail, verificationLink) => {
 
 // 📝 **Benutzer-Registrierung**
 export const registerUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, role } = req.body;
 
   if (!username || !email || !password) {
     return res.status(400).json({ message: 'Bitte alle Felder ausfüllen.' });
   }
 
-  // Prüfen, ob Nutzer bereits existiert
   const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-
   if (existingUser) {
     return res.status(400).json({ message: 'Benutzername oder E-Mail bereits vergeben.' });
   }
 
-  // Benutzer erstellen
   const user = await User.create({
     username,
     email,
-    password, // Hashing übernimmt das Schema
+    password,
+    role: role || 'user',
     isVerified: false,
   });
 
@@ -60,6 +58,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     _id: user._id,
     username: user.username,
     email: user.email,
+    role: user.role,
     message: 'Registrierung erfolgreich! Bitte überprüfe deine E-Mails zur Verifizierung.',
   });
 });
@@ -117,6 +116,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     _id: user.id,
     username: user.username,
     email: user.email,
+    role: user.role,
     token: generateToken(user.id),
   });
 });

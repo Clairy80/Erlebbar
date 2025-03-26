@@ -144,14 +144,16 @@ body {
   align-items: center;
   padding: 1rem 0;
   gap: 1rem;
-  position: fixed;
+  position: fixed; /* 🔥 Fixiert die Toolbar auf allen Seiten */
   left: 0;
   top: 0;
-  height: 100vh;
+  height: 100vh; /* 🔥 Stellt sicher, dass die Toolbar die volle Höhe hat */
   border-right: 2px solid #ddd;
   z-index: 1000;
+  transition: all 0.3s ease-in-out;
 }
 
+/* 🌙 Dark Mode */
 [data-theme="dark"] .accessibility-toolbar {
   background: #222;
   border-right: 2px solid #444;
@@ -171,6 +173,36 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.3s ease-in-out;
+}
+
+/* 🖱️ Hover-Effekte */
+.accessibility-toolbar button:hover,
+.accessibility-toolbar select:hover {
+  background: #ddd;
+}
+
+/* 🌍 Sprachwahl */
+.accessibility-toolbar select {
+  width: 50px;
+  text-align: center;
+}
+
+/* 🔍 Anpassung für mobile Darstellung */
+@media (max-width: 768px) {
+  .accessibility-toolbar {
+    width: 50px;
+  }
+  
+  .accessibility-toolbar button,
+  .accessibility-toolbar select {
+    width: 40px;
+    height: 40px;
+  }
+
+  #root {
+    padding-left: 55px;
+  }
 }
 
 /* 📍 Map-Anpassungen */

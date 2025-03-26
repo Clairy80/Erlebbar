@@ -80,6 +80,23 @@ const eventSchema = new mongoose.Schema({
   accessibilityOptions: { 
     type: [String], 
     default: [] 
+  },
+  // 👨‍👩‍👧‍👦 Zielgruppe
+  suitableFor: {
+    type: String,
+    default: "Alle"
+  },
+  // ⭐ Bewertung (optional, durch Nutzer)
+  rating: {
+    type: Number,
+    min: 0,
+    max: 5,
+    default: null
+  },
+  // 👥 Begleitgesuch (optional)
+  needsCompanion: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 

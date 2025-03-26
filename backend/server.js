@@ -9,6 +9,7 @@ import eventRoutes from './routes/eventRoutes.js';
 import locationRoutes from './routes/locationRoutes.js';
 import ratingRoutes from './routes/ratingRoutes.js';
 
+
 dotenv.config();
 
 // 🔥 **Datenbankverbindung mit Fehlerhandling**

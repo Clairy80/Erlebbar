@@ -64,6 +64,24 @@ const EventList = ({ events, searchQuery }) => {
             <FaMapMarkerAlt style={{ marginRight: '0.5rem', color: '#646cff' }} aria-hidden="true" />
             <span aria-label="Ort">{event.location || "Ort unbekannt"}</span>
           </p>
+
+          {/* 🏆 Sterne-Bewertung anzeigen */}
+          <p style={{ display: 'flex', alignItems: 'center', color: '#333' }}>
+            <span style={{ marginRight: '0.5rem', fontSize: "1.2rem" }}>⭐</span>
+            <span aria-label="Bewertung">{event.rating ? `${event.rating} Sterne` : "Noch keine Bewertung"}</span>
+          </p>
+
+          {/* ♿ Barrierefreiheit anzeigen */}
+          <p style={{ display: 'flex', alignItems: 'center', color: '#333' }}>
+            <span style={{ marginRight: '0.5rem' }}>♿</span>
+            <span aria-label="Barrierefreiheit">{event.accessible ? "Barrierefrei" : "Nicht barrierefrei"}</span>
+          </p>
+
+          {/* 👨‍👩‍👧‍👦 Zielgruppe anzeigen */}
+          <p style={{ display: 'flex', alignItems: 'center', color: '#333' }}>
+            <span style={{ marginRight: '0.5rem' }}>👨‍👩‍👧‍👦</span>
+            <span aria-label="Zielgruppe">{event.suitableFor || "Keine Angabe"}</span>
+          </p>
         </article>
       ))}
     </section>

@@ -19,7 +19,7 @@ const locationIcon = new L.Icon({
   popupAnchor: [1, -34],
 });
 
-// 🌍 **Map automatisch zentrieren**
+// 🌍 Map automatisch zentrieren
 const RecenterAutomatically = ({ lat, lon }) => {
   const map = useMap();
   useEffect(() => {
@@ -35,9 +35,8 @@ const Map = ({ location }) => {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [mapCenter, setMapCenter] = useState([51.1657, 10.4515]); // 🇩🇪 Standard: Deutschland
+  const [mapCenter, setMapCenter] = useState([51.1657, 10.4515]); // Deutschland
 
-  // 🛠 API-Daten abrufen
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -50,19 +49,39 @@ const Map = ({ location }) => {
           axios.get("/api/locations"),
         ]);
 
-        console.log("📦 API-Antwort für Events:", eventsRes.data);
-        console.log("📦 API-Antwort für Locations:", locationsRes.data);
+        const ratedEvents = await Promise.all(
+          eventsRes.data.map(async (event) => {
+            let avgRating = null;
+            try {
+              const ratingsRes = await axios.get(`/api/ratings/event/${event._id}`);
+              const ratings = Array.isArray(ratingsRes.data) ? ratingsRes.data : [];
+              avgRating =
+                ratings.length > 0
+                  ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1)
+                  : null;
+            } catch (err) {
+              if (err.response && err.response.status === 404) {
+                console.info(`ℹ️ Keine Bewertungen für Event ${event._id} – alles okay.`);
+              } else {
+                console.warn(`⚠️ Fehler beim Laden der Bewertungen für Event ${event._id}`, err.message);
+              }
+            }
+        
+            return { ...event, averageRating: avgRating };
+          })
+        );
+        
 
-        setEvents(eventsRes.data || []);
+        setEvents(ratedEvents || []);
         setLocations(locationsRes.data || []);
 
-        console.log("✅ State nach API-Aufruf (Events):", eventsRes.data);
-        console.log("✅ State nach API-Aufruf (Locations):", locationsRes.data);
-
-        // 🌍 Falls kein Suchort gesetzt wurde, auf erstes Event oder Location zentrieren
-        if (eventsRes.data.length > 0 && eventsRes.data[0].lat && eventsRes.data[0].lon) {
-          setMapCenter([eventsRes.data[0].lat, eventsRes.data[0].lon]);
-        } else if (locationsRes.data.length > 0 && locationsRes.data[0].geo?.latitude && locationsRes.data[0].geo?.longitude) {
+        if (ratedEvents.length > 0 && ratedEvents[0].lat && ratedEvents[0].lon) {
+          setMapCenter([ratedEvents[0].lat, ratedEvents[0].lon]);
+        } else if (
+          locationsRes.data.length > 0 &&
+          locationsRes.data[0].geo?.latitude &&
+          locationsRes.data[0].geo?.longitude
+        ) {
           setMapCenter([locationsRes.data[0].geo.latitude, locationsRes.data[0].geo.longitude]);
         }
       } catch (err) {
@@ -76,7 +95,6 @@ const Map = ({ location }) => {
     fetchData();
   }, []);
 
-  // 📍 Wenn ein neuer Standort gesucht wird, aktualisiere `mapCenter`
   useEffect(() => {
     if (location) {
       console.log("🔄 Neuer Standort wurde gesetzt:", location);
@@ -92,54 +110,46 @@ const Map = ({ location }) => {
       {error && <p style={{ color: "red" }}>{error}</p>}
       {loading && <p>⏳ Karten-Daten werden geladen...</p>}
 
-      {/* 🗺️ Map */}
       <MapContainer center={mapCenter} zoom={12} style={{ height: "500px", width: "100%" }} role="application">
-        <TileLayer attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <TileLayer
+          attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
         <RecenterAutomatically lat={mapCenter[0]} lon={mapCenter[1]} />
 
-        {/* 🔵 Events */}
-        {events.length > 0 ? (
-          events.map((event) =>
-            event.lat && event.lon ? (
-              <Marker key={event._id} position={[event.lat, event.lon]} icon={eventIcon}>
-<Popup>
-  <h3 tabIndex="0">{event.title || "Unbekanntes Event"}</h3>
-  <p>{event.description || "Keine Beschreibung verfügbar"}</p>
-  <p><strong>📍 Ort:</strong> {event.location || "Keine Adresse angegeben"}</p>
-  <p><strong>📅 Datum:</strong> {new Date(event.date).toLocaleDateString() || "Unbekannt"}</p>
-  <p><strong>🕒 Uhrzeit:</strong> {event.time || "Unbekannt"}</p>
-  <p><strong>⭐ Bewertung:</strong> {event.rating ? `${event.rating} Sterne` : "Noch keine Bewertung"}</p>
-  <p><strong>♿ Barrierefreiheit:</strong> {event.accessible ? "Ja" : "Nein"}</p>
-  <p><strong>👨‍👩‍👧‍👦 Geeignet für:</strong> {event.suitableFor || "Keine Angabe"}</p>
-</Popup>
-
-              </Marker>
-            ) : null
-          )
-        ) : (
-          <p>⚠️ Keine Events gefunden!</p>
+        {/* 🔵 Events anzeigen */}
+        {events.map((event) =>
+          event.lat && event.lon ? (
+            <Marker key={event._id} position={[event.lat, event.lon]} icon={eventIcon}>
+              <Popup>
+                <h3 tabIndex="0">{event.title || "Unbekanntes Event"}</h3>
+                <p>{event.description || "Keine Beschreibung verfügbar"}</p>
+                <p><strong>📍 Ort:</strong> {event.city || "Keine Adresse angegeben"}</p>
+                <p><strong>📅 Datum:</strong> {event.date ? new Date(event.date).toLocaleDateString() : "Unbekannt"}</p>
+                <p><strong>🕒 Uhrzeit:</strong> {event.time || "Unbekannt"}</p>
+                <p><strong>⭐ Bewertung:</strong> {event.averageRating ? `${event.averageRating} Sterne` : "Noch keine Bewertung"}</p>
+                <p><strong>♿ Barrierefreiheit:</strong> {event.accessibilityOptions?.length > 0 ? "Ja" : "Nein"}</p>
+                <p><strong>👨‍👩‍👧‍👦 Zielgruppe:</strong> {event.suitableFor || "Alle"}</p>
+              </Popup>
+            </Marker>
+          ) : null
         )}
 
-        {/* 🔴 Locations */}
-        {locations.length > 0 ? (
-          locations.map((location) =>
-            location.geo?.latitude && location.geo?.longitude ? (
-              <Marker key={location._id} position={[location.geo.latitude, location.geo.longitude]} icon={locationIcon}>
-                <Popup>
-                  <h3 tabIndex="0">{location.name || "Unbekannte Location"}</h3>
-                  <p>{location.description || "Keine Beschreibung verfügbar"}</p>
-                  <p><strong>📍 Adresse:</strong> {location.address?.street && location.address?.zip && location.address?.city
-                    ? `${location.address.street} ${location.address.number}, ${location.address.zip} ${location.address.city}`
-                    : "Keine vollständige Adresse angegeben"
-                  }</p>
-                  <p><strong>🛠 Kategorie:</strong> {location.category || "Nicht angegeben"}</p>
-                  <p><strong>♿ Barrierefrei:</strong> {location.accessibility?.stepFreeAccess ? "Ja" : "Nein"}</p>
-                </Popup>
-              </Marker>
-            ) : null
-          )
-        ) : (
-          <p>⚠️ Keine Locations gefunden!</p>
+        {/* 🔴 Locations anzeigen */}
+        {locations.map((location) =>
+          location.geo?.latitude && location.geo?.longitude ? (
+            <Marker key={location._id} position={[location.geo.latitude, location.geo.longitude]} icon={locationIcon}>
+              <Popup>
+                <h3 tabIndex="0">{location.name || "Unbekannte Location"}</h3>
+                <p>{location.description || "Keine Beschreibung verfügbar"}</p>
+                <p><strong>📍 Adresse:</strong> {location.address?.street && location.address?.zip && location.address?.city
+                  ? `${location.address.street} ${location.address.number}, ${location.address.zip} ${location.address.city}`
+                  : "Keine vollständige Adresse angegeben"}</p>
+                <p><strong>🛠 Kategorie:</strong> {location.category || "Nicht angegeben"}</p>
+                <p><strong>♿ Barrierefrei:</strong> {location.accessibility?.stepFreeAccess ? "Ja" : "Nein"}</p>
+              </Popup>
+            </Marker>
+          ) : null
         )}
       </MapContainer>
     </div>

@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-let isConnected = false; // ✅ Zustand merken, um doppelte Verbindung zu verhindern
+let isConnected = false;
 
 const connectDB = async () => {
   if (isConnected) {
@@ -11,12 +11,20 @@ const connectDB = async () => {
     return;
   }
 
+  if (!process.env.MONGODB_URI) {
+    console.error('❌ Keine MONGODB_URI in .env definiert!');
+    process.exit(1);
+  }
+
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    isConnected = true; // ✅ Nur einmal verbinden
-    console.log(`✅ Erfolgreich mit MongoDB verbunden: ${mongoose.connection.host}`);
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      dbName: process.env.MONGODB_DB || undefined, // Optionaler DB-Name
+    });
+
+    isConnected = true;
+    console.log(`✅ Erfolgreich verbunden mit MongoDB bei ${conn.connection.host}`);
   } catch (err) {
-    console.error('❌ MongoDB-Verbindungsfehler:', err);
+    console.error('❌ Fehler bei MongoDB-Verbindung:', err.message);
     process.exit(1);
   }
 };

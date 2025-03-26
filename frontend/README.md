@@ -309,3 +309,31 @@ Neuer Plan (20.3.25)
 │   ├── /controllers
 │   │   ├── eventController.js ✅ (🆕 Methoden für Speicherung & Bewertung)
 │   ├── server.js
+ 
+ Update (26.3.25)
+
+✅ Backend-Updates
+Event-Erstellung überarbeitet:
+
+Automatisches Geocoding mit lat & lon via Nominatim bei Offline-Events.
+
+Pflichtfelder & Rollen-Check eingebaut (organizer only).
+
+Neue Middleware:
+
+checkAccessibilityForOfflineEvent prüft Barrierefreiheit bei Offline-Events.
+
+Ratings-Routen & Controller vollständig eingebunden:
+
+Bewertung erstellen, abrufen (event- & location-basiert) & löschen.
+
+Fehler bei fehlenden Bewertungen sauber abgefangen (404 wird still geschluckt).
+
+✅ Frontend-Map (Map.jsx)
+Pins für Events & Locations endlich sichtbar! 🎯
+
+Ratings werden automatisch geladen & im Marker angezeigt.
+
+Verbesserter Fehler-Handler: 404 bei fehlenden Bewertungen ≠ Crash.
+
+Map zentriert sich zuverlässig auf erste gültige Koordinate.

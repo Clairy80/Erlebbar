@@ -3,6 +3,8 @@ import axios from "axios";
 
 const UserDashboard = () => {
   const [savedEvents, setSavedEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchSavedEvents = async () => {
@@ -17,6 +19,9 @@ const UserDashboard = () => {
         setSavedEvents(response.data);
       } catch (error) {
         console.error("❌ Fehler beim Laden der gespeicherten Events:", error);
+        setError("Daten konnten nicht geladen werden.");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -24,14 +29,32 @@ const UserDashboard = () => {
   }, []);
 
   return (
-    <div>
-      <h1>📂 Mein Bereich</h1>
-      {savedEvents.length === 0 ? (
+    <div className="dashboard-container" style={{ padding: "2rem" }}>
+      <h1 style={{ marginBottom: "1rem" }}>📂 Mein Bereich</h1>
+
+      {loading ? (
+        <p>⏳ Lade deine gespeicherten Events...</p>
+      ) : error ? (
+        <p style={{ color: "red" }}>{error}</p>
+      ) : savedEvents.length === 0 ? (
         <p>Du hast noch keine Events gespeichert.</p>
       ) : (
-        <ul>
+        <ul style={{ listStyle: "none", padding: 0 }}>
           {savedEvents.map((event) => (
-            <li key={event._id}>{event.title} - {event.date}</li>
+            <li
+              key={event._id}
+              style={{
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                padding: "1rem",
+                marginBottom: "1rem",
+                backgroundColor: "#f9f9f9",
+              }}
+            >
+              <h3 style={{ margin: 0 }}>{event.title}</h3>
+              <p style={{ margin: "0.5rem 0" }}>📅 {new Date(event.date).toLocaleDateString()}</p>
+              <p>📍 {event.location || "Ort nicht angegeben"}</p>
+            </li>
           ))}
         </ul>
       )}
