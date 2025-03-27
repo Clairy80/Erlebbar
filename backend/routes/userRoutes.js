@@ -7,6 +7,8 @@ import {
 } from '../controllers/userController.js';
 
 import { protect, verifyEmail as requireVerifiedEmail } from '../middleware/authMiddleware.js';
+import { saveEventToUser } from '../controllers/userController.js';
+
 
 const router = express.Router();
 
@@ -21,5 +23,9 @@ router.post('/verify-email', verifyEmail);
 
 // 🙋‍♀️ Geschützter Profil-Endpunkt
 router.get('/profile', protect, requireVerifiedEmail, getUserProfile);
+
+// 📌 Event speichern (geschützt)
+router.put('/save-event/:eventId', protect, requireVerifiedEmail, saveEventToUser);
+
 
 export default router;

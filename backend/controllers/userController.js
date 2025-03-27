@@ -123,11 +123,24 @@ export const loginUser = asyncHandler(async (req, res) => {
 
 // 🔍 **Benutzerprofil abrufen (geschützt)**
 export const getUserProfile = asyncHandler(async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('-password');
-    if (!user) return res.status(404).json({ message: 'Benutzer nicht gefunden.' });
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  const user = await User.findById(req.user.id).select('-password');
+  if (!user) {
+    return res.status(404).json({ message: 'Benutzer nicht gefunden.' });
   }
+  res.json(user);
 });
+
+export const saveEventToUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id);
+
+  const eventId = req.params.eventId;
+  if (!user.savedEvents.includes(eventId)) {
+    user.savedEvents.push(eventId);
+    await user.save();
+  }
+
+  res.status(200).json({ message: '✅ Event gespeichert!', savedEvents: user.savedEvents });
+});
+
+
+
