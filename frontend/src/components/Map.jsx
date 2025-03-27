@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import axios from "axios";
 import L from "leaflet";
+import EventList from "./EventList";
 
 // 🔵 Blaue Marker für Events
 const eventIcon = new L.Icon({
@@ -36,14 +37,13 @@ const Map = ({ location }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [mapCenter, setMapCenter] = useState([51.1657, 10.4515]); // Deutschland
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
-        console.log("📡 Events & Locations werden geladen...");
-
         const [eventsRes, locationsRes] = await Promise.all([
           axios.get("/api/events"),
           axios.get("/api/locations"),
@@ -59,33 +59,18 @@ const Map = ({ location }) => {
                 ratings.length > 0
                   ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1)
                   : null;
-            } catch (err) {
-              if (err.response && err.response.status === 404) {
-                console.info(`ℹ️ Keine Bewertungen für Event ${event._id} – alles okay.`);
-              } else {
-                console.warn(`⚠️ Fehler beim Laden der Bewertungen für Event ${event._id}`, err.message);
-              }
-            }
-        
+            } catch (err) {}
             return { ...event, averageRating: avgRating };
           })
         );
-        
 
         setEvents(ratedEvents || []);
         setLocations(locationsRes.data || []);
 
         if (ratedEvents.length > 0 && ratedEvents[0].lat && ratedEvents[0].lon) {
           setMapCenter([ratedEvents[0].lat, ratedEvents[0].lon]);
-        } else if (
-          locationsRes.data.length > 0 &&
-          locationsRes.data[0].geo?.latitude &&
-          locationsRes.data[0].geo?.longitude
-        ) {
-          setMapCenter([locationsRes.data[0].geo.latitude, locationsRes.data[0].geo.longitude]);
         }
       } catch (err) {
-        console.error("❌ Fehler beim Laden der Events oder Locations:", err);
         setError("Daten konnten nicht geladen werden.");
       } finally {
         setLoading(false);
@@ -97,13 +82,9 @@ const Map = ({ location }) => {
 
   useEffect(() => {
     if (location) {
-      console.log("🔄 Neuer Standort wurde gesetzt:", location);
       setMapCenter(location);
     }
   }, [location]);
-
-  console.log("📌 State-Werte vor Rendering (Events):", events);
-  console.log("📌 State-Werte vor Rendering (Locations):", locations);
 
   return (
     <div>
@@ -120,17 +101,13 @@ const Map = ({ location }) => {
         {/* 🔵 Events anzeigen */}
         {events.map((event) =>
           event.lat && event.lon ? (
-            <Marker key={event._id} position={[event.lat, event.lon]} icon={eventIcon}>
-              <Popup>
-                <h3 tabIndex="0">{event.title || "Unbekanntes Event"}</h3>
-                <p>{event.description || "Keine Beschreibung verfügbar"}</p>
-                <p><strong>📍 Ort:</strong> {event.city || "Keine Adresse angegeben"}</p>
-                <p><strong>📅 Datum:</strong> {event.date ? new Date(event.date).toLocaleDateString() : "Unbekannt"}</p>
-                <p><strong>🕒 Uhrzeit:</strong> {event.time || "Unbekannt"}</p>
-                <p><strong>⭐ Bewertung:</strong> {event.averageRating ? `${event.averageRating} Sterne` : "Noch keine Bewertung"}</p>
-                <p><strong>♿ Barrierefreiheit:</strong> {event.accessibilityOptions?.length > 0 ? "Ja" : "Nein"}</p>
-                <p><strong>👨‍👩‍👧‍👦 Zielgruppe:</strong> {event.suitableFor || "Alle"}</p>
-              </Popup>
+            <Marker
+              key={event._id}
+              position={[event.lat, event.lon]}
+              icon={eventIcon}
+              eventHandlers={{ click: () => setSelectedEvent(event) }}
+            >
+              <Popup>{event.title}</Popup>
             </Marker>
           ) : null
         )}
@@ -138,20 +115,19 @@ const Map = ({ location }) => {
         {/* 🔴 Locations anzeigen */}
         {locations.map((location) =>
           location.geo?.latitude && location.geo?.longitude ? (
-            <Marker key={location._id} position={[location.geo.latitude, location.geo.longitude]} icon={locationIcon}>
-              <Popup>
-                <h3 tabIndex="0">{location.name || "Unbekannte Location"}</h3>
-                <p>{location.description || "Keine Beschreibung verfügbar"}</p>
-                <p><strong>📍 Adresse:</strong> {location.address?.street && location.address?.zip && location.address?.city
-                  ? `${location.address.street} ${location.address.number}, ${location.address.zip} ${location.address.city}`
-                  : "Keine vollständige Adresse angegeben"}</p>
-                <p><strong>🛠 Kategorie:</strong> {location.category || "Nicht angegeben"}</p>
-                <p><strong>♿ Barrierefrei:</strong> {location.accessibility?.stepFreeAccess ? "Ja" : "Nein"}</p>
-              </Popup>
+            <Marker
+              key={location._id}
+              position={[location.geo.latitude, location.geo.longitude]}
+              icon={locationIcon}
+            >
+              <Popup>{location.name}</Popup>
             </Marker>
           ) : null
         )}
       </MapContainer>
+
+      {/* Detailbereich direkt unter der Karte */}
+      {selectedEvent && <EventList events={[selectedEvent]} />}
     </div>
   );
 };

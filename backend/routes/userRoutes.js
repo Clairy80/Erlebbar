@@ -3,7 +3,8 @@ import {
   registerUser,
   loginUser,
   getUserProfile,
-  verifyEmail
+  verifyEmail,
+  getSavedEvents,
 } from '../controllers/userController.js';
 
 import { protect, verifyEmail as requireVerifiedEmail } from '../middleware/authMiddleware.js';
@@ -26,6 +27,11 @@ router.get('/profile', protect, requireVerifiedEmail, getUserProfile);
 
 // 📌 Event speichern (geschützt)
 router.put('/save-event/:eventId', protect, requireVerifiedEmail, saveEventToUser);
+
+// z. B. in userRoutes.js
+router.get('/saved-events', protect, getSavedEvents);
+
+
 
 
 export default router;

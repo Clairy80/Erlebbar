@@ -142,5 +142,14 @@ export const saveEventToUser = asyncHandler(async (req, res) => {
   res.status(200).json({ message: '✅ Event gespeichert!', savedEvents: user.savedEvents });
 });
 
+// 📤 Gespeicherte Events abrufen
+export const getSavedEvents = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id).populate('savedEvents');
 
+  if (!user) {
+    return res.status(404).json({ message: 'Benutzer nicht gefunden.' });
+  }
+
+  res.status(200).json(user.savedEvents);
+});
 
