@@ -66,11 +66,10 @@ const Map = ({ location }) => {
                 console.warn(`⚠️ Fehler beim Abrufen der Bewertungen für Event ${event._id}:`, error);
               }
             }
-        
+
             return { ...event, averageRating: avgRating };
           })
         );
-        
 
         setEvents(ratedEvents || []);
         setLocations(locationsRes.data || []);
@@ -115,7 +114,16 @@ const Map = ({ location }) => {
               icon={eventIcon}
               eventHandlers={{ click: () => setSelectedEvent(event) }}
             >
-              <Popup>{event.title}</Popup>
+              <Popup>
+                <h3>{event.title}</h3>
+                <p>{event.description || "Keine Beschreibung vorhanden"}</p>
+                <p><strong>📍 Ort:</strong> {event.city || "Keine Stadt angegeben"}</p>
+                <p><strong>📅 Datum:</strong> {event.date ? new Date(event.date).toLocaleDateString() : "Unbekannt"}</p>
+                <p><strong>🕒 Uhrzeit:</strong> {event.time || "Unbekannt"}</p>
+                <p><strong>⭐ Bewertung:</strong> {event.averageRating ? `${event.averageRating} Sterne` : "Noch keine Bewertung"}</p>
+                <p><strong>♿ Barrierefreiheit:</strong> {event.accessibilityOptions?.length > 0 ? "Ja" : "Nein"}</p>
+                <p><strong>👨‍👩‍👧‍👦 Zielgruppe:</strong> {event.suitableFor || "Alle"}</p>
+              </Popup>
             </Marker>
           ) : null
         )}
