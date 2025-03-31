@@ -48,6 +48,7 @@ const CreateLocationForm = ({ token }) => {
                 <option value="Museum">Museum</option>
                 <option value="Veranstaltungsort">Veranstaltungsort</option>
                 <option value="Andere">Andere</option>
+                
             </select>
             <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded">Location erstellen</button>
             {message && <p className="mt-2 text-red-500">{message}</p>}
