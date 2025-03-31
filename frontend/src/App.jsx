@@ -83,7 +83,7 @@ const App = () => {
             element={
               <>
                 <WelcomeHeader />
-                <SearchBar onSearch={handleSearch} />
+                <SearchBar onSearch={handleSearch} onLocationSelect={setLocation} />
                 <Map location={location} events={events} />
                 <EventList events={events} searchQuery={searchQuery} />
               </>

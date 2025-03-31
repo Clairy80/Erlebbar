@@ -54,15 +54,23 @@ const Map = ({ location }) => {
             let avgRating = null;
             try {
               const ratingsRes = await axios.get(`/api/ratings/event/${event._id}`);
-              const ratings = Array.isArray(ratingsRes.data) ? ratingsRes.data : [];
+              const ratings = ratingsRes.data;
               avgRating =
                 ratings.length > 0
                   ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1)
                   : null;
-            } catch (err) {}
+            } catch (error) {
+              if (error.response && error.response.status === 404) {
+                console.info(`ℹ️ Keine Bewertungen für Event ${event._id} vorhanden.`);
+              } else {
+                console.warn(`⚠️ Fehler beim Abrufen der Bewertungen für Event ${event._id}:`, error);
+              }
+            }
+        
             return { ...event, averageRating: avgRating };
           })
         );
+        
 
         setEvents(ratedEvents || []);
         setLocations(locationsRes.data || []);
