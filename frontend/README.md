@@ -337,3 +337,49 @@ Ratings werden automatisch geladen & im Marker angezeigt.
 Verbesserter Fehler-Handler: 404 bei fehlenden Bewertungen ≠ Crash.
 
 Map zentriert sich zuverlässig auf erste gültige Koordinate.
+
+📦 Letztes Update – März 2025 (31.3.25)
+✅ Frontend-Verbesserungen
+🔹 Modernisierte Navbar
+
+Passt sich jetzt exakt der Map-Breite an
+
+Kein Überlaufen mehr (z. B. bei „Registrierung“)
+
+Mobile und Desktop gleichermaßen schick & barrierefrei
+
+🔎 Neue SearchBar-Optik
+
+Runde Ecken, klare Struktur, responsive
+
+Verbesserte Usability mit Icon & Fehlerbehandlung
+
+Dark-Mode-kompatibel (bleibt hell zur besseren Sichtbarkeit)
+
+🌘 Dark Mode Fixes
+
+Komplettes globales Styling überarbeitet
+
+Alles dunkel außer Karte & Suchleiste
+
+Klare, kontrastreiche Farben für Lesbarkeit
+
+🗺️ Karten- & Eventlogik
+📍 Marker-Verhalten überarbeitet
+
+Klick auf Marker zeigt Event/Location direkt im Popup
+
+Marker lösen jetzt zusätzlich eine Detailansicht unterhalb der Karte aus (selectedEvent-State)
+
+⭐ Bewertungsfunktion reaktiviert
+
+Durchschnittliche Bewertung pro Event wird live berechnet
+
+Fehlerbehandlung bei fehlenden Ratings integriert
+
+📦 Komponentenstruktur aufgeräumt
+
+Map.jsx bindet EventList direkt ein
+
+Zustandslogik verbessert (keine redundanten States mehr)
+
