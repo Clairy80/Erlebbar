@@ -16,6 +16,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'Bitte alle Felder ausfüllen.' });
   }
 
+  // Überprüfen, ob der Benutzername oder die E-Mail bereits existieren
   const existingUser = await User.findOne({ $or: [{ email }, { username }] });
   if (existingUser) {
     return res.status(400).json({ message: 'Benutzername oder E-Mail bereits vergeben.' });
@@ -53,11 +54,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     return res.status(401).json({ message: 'Ungültige Anmeldeinformationen.' });
   }
 
-  // Optional: E-Mail-Verifizierung überprüfen (falls gewünscht, andernfalls diesen Teil entfernen)
-  if (!user.isVerified) {
-    return res.status(403).json({ message: 'E-Mail nicht verifiziert! Bitte überprüfe deine E-Mails.' });
-  }
-
+  // Benutzer wird direkt als verifiziert angenommen
   const passwordMatch = await bcrypt.compare(password, user.password);
   if (!passwordMatch) {
     return res.status(401).json({ message: 'Ungültige Anmeldeinformationen.' });
@@ -81,6 +78,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
   res.json(user);
 });
 
+// 📌 **Event speichern (geschützt)**
 export const saveEventToUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.id);
 
@@ -93,7 +91,7 @@ export const saveEventToUser = asyncHandler(async (req, res) => {
   res.status(200).json({ message: '✅ Event gespeichert!', savedEvents: user.savedEvents });
 });
 
-// 📤 Gespeicherte Events abrufen
+// 📤 **Gespeicherte Events abrufen**
 export const getSavedEvents = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.id).populate('savedEvents');
 

@@ -46,10 +46,13 @@ const Register = () => {
     e.preventDefault();
     setError('');
     try {
+      console.log("Hallo Register");
+      // Registrierungs-API ohne E-Mail-Verifizierung
       const response = await axios.post('http://localhost:5000/api/users/register', formData);
       alert(response.data.message);
       navigate('/login'); // Nach erfolgreicher Registrierung zum Login weiterleiten
     } catch (error) {
+      console.log(error.response);
       setError(error.response?.data?.message || 'Fehler bei der Registrierung');
     }
   };
@@ -63,22 +66,49 @@ const Register = () => {
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="username">Benutzername</label>
-          <input type="text" name="username" id="username" value={formData.username} onChange={handleChange} required />
+          <input 
+            type="text" 
+            name="username" 
+            id="username" 
+            value={formData.username} 
+            onChange={handleChange} 
+            required 
+          />
         </div>
 
         <div className="form-group">
           <label htmlFor="password">Passwort (min. 6 Zeichen)</label>
-          <input type="password" name="password" id="password" value={formData.password} onChange={handleChange} required />
+          <input 
+            type="password" 
+            name="password" 
+            id="password" 
+            value={formData.password} 
+            onChange={handleChange} 
+            required 
+          />
         </div>
 
         <div className="form-group">
           <label htmlFor="email">E-Mail</label>
-          <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} required />
+          <input 
+            type="email" 
+            name="email" 
+            id="email" 
+            value={formData.email} 
+            onChange={handleChange} 
+            required 
+          />
         </div>
 
         <div className="form-group">
           <label htmlFor="role">Rolle</label>
-          <select name="role" id="role" value={formData.role} onChange={handleChange}>
+          <select 
+            name="role" 
+            id="role" 
+            value={formData.role} 
+            onChange={handleChange}
+            required
+          >
             <option value="user">👤 Teilnehmer*in</option>
             <option value="organizer">📅 Veranstalter*in</option>
           </select>
@@ -88,27 +118,61 @@ const Register = () => {
           <>
             <div className="form-group">
               <label htmlFor="organization">Organisation</label>
-              <input type="text" name="organization" id="organization" value={formData.organization} onChange={handleChange} required />
+              <input 
+                type="text" 
+                name="organization" 
+                id="organization" 
+                value={formData.organization} 
+                onChange={handleChange} 
+                required 
+              />
             </div>
 
             <div className="form-group">
               <label htmlFor="address">Adresse</label>
-              <input type="text" name="address" id="address" value={formData.address} onChange={handleChange} required />
+              <input 
+                type="text" 
+                name="address" 
+                id="address" 
+                value={formData.address} 
+                onChange={handleChange} 
+                required 
+              />
             </div>
 
             <div className="form-group">
               <label htmlFor="date">Datum</label>
-              <input type="date" name="date" id="date" value={formData.date} onChange={handleChange} required />
+              <input 
+                type="date" 
+                name="date" 
+                id="date" 
+                value={formData.date} 
+                onChange={handleChange} 
+                required 
+              />
             </div>
 
             <div className="form-group">
               <label htmlFor="time">Uhrzeit</label>
-              <input type="time" name="time" id="time" value={formData.time} onChange={handleChange} required />
+              <input 
+                type="time" 
+                name="time" 
+                id="time" 
+                value={formData.time} 
+                onChange={handleChange} 
+                required 
+              />
             </div>
 
             <div className="form-group">
               <label htmlFor="eventType">Event-Typ</label>
-              <select name="eventType" id="eventType" value={formData.eventType} onChange={handleChange}>
+              <select 
+                name="eventType" 
+                id="eventType" 
+                value={formData.eventType} 
+                onChange={handleChange}
+                required
+              >
                 {eventTypes.map((type) => (
                   <option key={type} value={type}>{type}</option>
                 ))}
@@ -121,11 +185,11 @@ const Register = () => {
           <legend>♿ Barrierefreiheit</legend>
           {accessibilityOptions.map(option => (
             <label key={option}>
-              <input
-                type="checkbox"
-                value={option}
-                checked={formData.accessibilityOptions.includes(option)}
-                onChange={() => handleCheckboxChange(option)}
+              <input 
+                type="checkbox" 
+                value={option} 
+                checked={formData.accessibilityOptions.includes(option)} 
+                onChange={() => handleCheckboxChange(option)} 
               />
               {option}
             </label>

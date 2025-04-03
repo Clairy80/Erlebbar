@@ -9,7 +9,6 @@ import eventRoutes from './routes/eventRoutes.js';
 import locationRoutes from './routes/locationRoutes.js';
 import ratingRoutes from './routes/ratingRoutes.js';
 
-
 dotenv.config();
 
 // 🔥 **Datenbankverbindung mit Fehlerhandling**
@@ -44,7 +43,7 @@ const startServer = async () => {
   });
 
   // 🔥 **Server starten**
-  const PORT = process.env.PORT || 5000;
+  const PORT = process.env.PORT || 5001; // Port wurde auf 5001 geändert, um Konflikte zu vermeiden
   app.listen(PORT, () => {
     console.log(`🚀 Server läuft auf Port ${PORT} (${process.env.NODE_ENV || 'production'})`);
   });

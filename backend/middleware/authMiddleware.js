@@ -5,7 +5,7 @@ import User from '../models/User.js';
 
 dotenv.config();
 
-// 🛡 Authentifizierung prüfen
+// 🛡 **Authentifizierung prüfen**
 export const protect = asyncHandler(async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -29,15 +29,20 @@ export const protect = asyncHandler(async (req, res, next) => {
     console.log(`✅ Authentifizierter Benutzer: ${user.username}`);
     next();
   } catch (error) {
-    console.error("❌ Token-Fehler:", error);
+    console.error("❌ Fehler beim Verifizieren des Tokens:", error);
     return res.status(401).json({ message: 'Nicht autorisiert: Ungültiges oder abgelaufenes Token.' });
   }
 });
 
-// 📩 Verifizierung der E-Mail
+// 📩 **E-Mail-Verifizierung**
 export const verifyEmail = asyncHandler(async (req, res, next) => {
-  if (!req.user?.isVerified) {
-    console.warn(`⚠ E-Mail nicht verifiziert: ${req.user?.email}`);
+  if (!req.user) {
+    console.warn("⚠ Kein Benutzerobjekt in der Anfrage.");
+    return res.status(401).json({ message: 'Nicht autorisiert: Kein Benutzer gefunden.' });
+  }
+
+  if (!req.user.isVerified) {
+    console.warn(`⚠ E-Mail nicht verifiziert: ${req.user.email}`);
     return res.status(403).json({ message: 'E-Mail nicht verifiziert. Bitte bestätige deine E-Mail-Adresse.' });
   }
 
@@ -45,10 +50,14 @@ export const verifyEmail = asyncHandler(async (req, res, next) => {
   next();
 });
 
-// 🎭 Rolle "organizer" prüfen
+// 🎭 **Rolle "organizer" prüfen**
 export const authenticateOrganizer = asyncHandler(async (req, res, next) => {
-  if (req.user?.role !== 'organizer') {
-    console.warn(`❌ Kein Veranstalter: ${req.user?.username} (Rolle: ${req.user?.role})`);
+  if (!req.user) {
+    return res.status(401).json({ message: 'Nicht autorisiert: Kein Benutzer gefunden.' });
+  }
+
+  if (req.user.role !== 'organizer') {
+    console.warn(`❌ Kein Veranstalter: ${req.user.username} (Rolle: ${req.user.role})`);
     return res.status(403).json({ message: 'Nur Veranstalter dürfen Events erstellen oder bearbeiten.' });
   }
 
@@ -56,10 +65,11 @@ export const authenticateOrganizer = asyncHandler(async (req, res, next) => {
   next();
 });
 
-// ♿ Barrierefreiheitspflicht für Offline-Events
+// ♿ **Barrierefreiheitspflicht für Offline-Events**
 export const checkAccessibilityForOfflineEvent = asyncHandler(async (req, res, next) => {
   const { isOnline, accessibilityOptions } = req.body;
 
+  // Falls es sich um ein Offline-Event handelt, muss mindestens eine Barrierefreiheit-Option ausgewählt sein
   if (!isOnline && (!accessibilityOptions || accessibilityOptions.length === 0)) {
     console.warn("❌ Barrierefreiheit fehlt bei Offline-Event");
     return res.status(400).json({
