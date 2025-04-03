@@ -13,7 +13,7 @@ const Footer = () => {
         textAlign: 'center'
       }}
     >
-      <p>&copy; 2024 Barrierefreie Events &amp; Locations</p>
+      <p>&copy; 2025 Barrierefreie Events &amp; Locations</p>
 
       {/* Navigationsbereich mit ARIA-Label */}
       <nav aria-label="Rechtliche Links">

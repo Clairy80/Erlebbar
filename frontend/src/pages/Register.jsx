@@ -54,39 +54,64 @@ const Register = () => {
   };
 
   return (
-    <div className="register-container">
+    <div className="form-container">
       <h2>📝 Registrierung</h2>
       {error && <p className="error-message">{error}</p>}
       
-      <form onSubmit={handleSubmit} className="register-form">
-        <input type="text" name="username" placeholder="Benutzername" value={formData.username} onChange={handleChange} required />
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="username">Benutzername</label>
+          <input type="text" name="username" value={formData.username} onChange={handleChange} required />
+        </div>
 
-        <input type="password" name="password" placeholder="Passwort (min. 6 Zeichen)" value={formData.password} onChange={handleChange} required />
+        <div className="form-group">
+          <label htmlFor="password">Passwort (min. 6 Zeichen)</label>
+          <input type="password" name="password" value={formData.password} onChange={handleChange} required />
+        </div>
 
-        <label htmlFor="role">Rolle:</label>
-        <select name="role" value={formData.role} onChange={handleChange}>
-          <option value="user">👤 Teilnehmer*in</option>
-          <option value="organizer">📅 Veranstalter*in</option>
-        </select>
+        <div className="form-group">
+          <label htmlFor="email">E-Mail</label>
+          <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="role">Rolle</label>
+          <select name="role" value={formData.role} onChange={handleChange}>
+            <option value="user">👤 Teilnehmer*in</option>
+            <option value="organizer">📅 Veranstalter*in</option>
+          </select>
+        </div>
 
         {formData.role === 'organizer' && (
           <>
-            <input type="text" name="organization" placeholder="Name der Organisation" value={formData.organization} onChange={handleChange} required />
+            <div className="form-group">
+              <label htmlFor="organization">Organisation</label>
+              <input type="text" name="organization" value={formData.organization} onChange={handleChange} required />
+            </div>
 
-            <input type="email" name="email" placeholder="E-Mail" value={formData.email} onChange={handleChange} required />
+            <div className="form-group">
+              <label htmlFor="address">Adresse</label>
+              <input type="text" name="address" value={formData.address} onChange={handleChange} required />
+            </div>
 
-            <input type="text" name="address" placeholder="Adresse" value={formData.address} onChange={handleChange} required />
+            <div className="form-group">
+              <label htmlFor="date">Datum</label>
+              <input type="date" name="date" value={formData.date} onChange={handleChange} required />
+            </div>
 
-            <input type="date" name="date" value={formData.date} onChange={handleChange} required />
+            <div className="form-group">
+              <label htmlFor="time">Uhrzeit</label>
+              <input type="time" name="time" value={formData.time} onChange={handleChange} required />
+            </div>
 
-            <input type="time" name="time" value={formData.time} onChange={handleChange} required />
-
-            <label htmlFor="eventType">Event-Typ:</label>
-            <select name="eventType" value={formData.eventType} onChange={handleChange}>
-              {eventTypes.map((type) => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
+            <div className="form-group">
+              <label htmlFor="eventType">Event-Typ</label>
+              <select name="eventType" value={formData.eventType} onChange={handleChange}>
+                {eventTypes.map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
           </>
         )}
 
@@ -100,7 +125,7 @@ const Register = () => {
           ))}
         </fieldset>
 
-        <button type="submit">🚀 Registrieren</button>
+        <button type="submit" className="form-button">🚀 Registrieren</button>
       </form>
     </div>
   );

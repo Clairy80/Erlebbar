@@ -1,10 +1,9 @@
 import React from 'react';
 
-
 const ImpressumPage = () => {
   return (
     <div className="impressum-container">
-      <h1>Impressum</h1>
+      <h2>Impressum</h2>
       <p><strong>Angaben gemäß § 5 TMG</strong></p>
       <p>
         Barrierefreie Events &amp; Locations<br /> 
@@ -30,17 +29,17 @@ const ImpressumPage = () => {
         <strong>Umsatzsteuer-ID:</strong><br /> 
         DE123456789
       </p>
-      <h2>Haftung für Inhalte</h2>
+      <h3>Haftung für Inhalte</h3>
       <p>
         Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. 
         Für die Inhalte externer Links sind ausschließlich deren Betreiber verantwortlich.
       </p>
-      <h2>Haftung für Links</h2>
+      <h3>Haftung für Links</h3>
       <p>
         Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. 
         Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.
       </p>
-      <h2>Urheberrecht</h2>
+      <h3>Urheberrecht</h3>
       <p>
         Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. 
         Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors.
