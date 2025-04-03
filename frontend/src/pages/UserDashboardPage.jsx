@@ -5,7 +5,6 @@ const UserDashboardPage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
-  // 🔐 Prüfen, ob Nutzer eingeloggt ist
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -15,28 +14,30 @@ const UserDashboardPage = () => {
     }
   }, [navigate]);
 
-  // 📦 Nutzerprofil abrufen
-// 📦 Nutzerprofil abrufen
-const fetchUserProfile = async (token) => {
-  try {
-    const response = await fetch("http://localhost:5000/api/users/profile", {  // Hier den Port 5000 verwenden
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!response.ok) throw new Error("Fehler beim Abrufen des Nutzerprofils");
-    const userData = await response.json();
-    setUser(userData);
-  } catch (error) {
-    console.error("❌ Fehler:", error);
-  }
-};
+  const fetchUserProfile = async (token) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/users/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Fehler beim Abrufen des Nutzerprofils");
+      const userData = await response.json();
+      setUser(userData);
+    } catch (error) {
+      console.error("❌ Fehler:", error);
+    }
+  };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
   return (
     <div style={{ padding: "2rem", textAlign: "center" }}>
       <h1>📌 Dein Dashboard</h1>
       {user ? (
         <>
-          <p>Willkommen, {user.name}!</p>
+          <p>Willkommen, {user.username}!</p>
           <p>📧 Email: {user.email}</p>
           <p>🌟 Deine gespeicherten Events</p>
           <ul>
@@ -46,6 +47,20 @@ const fetchUserProfile = async (token) => {
               <p>⚠️ Keine gespeicherten Events.</p>
             )}
           </ul>
+          <button
+            onClick={handleLogout}
+            style={{
+              marginTop: "20px",
+              padding: "10px 20px",
+              backgroundColor: "#e74c3c",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            Abmelden
+          </button>
         </>
       ) : (
         <p>⏳ Lade deine Daten...</p>
