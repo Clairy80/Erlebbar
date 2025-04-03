@@ -16,18 +16,20 @@ const UserDashboardPage = () => {
   }, [navigate]);
 
   // 📦 Nutzerprofil abrufen
-  const fetchUserProfile = async (token) => {
-    try {
-      const response = await fetch("/api/user/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!response.ok) throw new Error("Fehler beim Abrufen des Nutzerprofils");
-      const userData = await response.json();
-      setUser(userData);
-    } catch (error) {
-      console.error("❌ Fehler:", error);
-    }
-  };
+// 📦 Nutzerprofil abrufen
+const fetchUserProfile = async (token) => {
+  try {
+    const response = await fetch("http://localhost:5000/api/users/profile", {  // Hier den Port 5000 verwenden
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error("Fehler beim Abrufen des Nutzerprofils");
+    const userData = await response.json();
+    setUser(userData);
+  } catch (error) {
+    console.error("❌ Fehler:", error);
+  }
+};
+
 
   return (
     <div style={{ padding: "2rem", textAlign: "center" }}>
