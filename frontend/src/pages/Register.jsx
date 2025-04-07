@@ -14,7 +14,11 @@ const Register = () => {
     date: '',
     time: '',
     eventType: 'Konzert',
-    accessibilityOptions: []
+    accessibilityOptions: [],
+    eventTitle: '',
+    eventDescription: '',
+    eventDate: '',
+    eventTime: ''
   });
 
   const [error, setError] = useState('');
@@ -46,14 +50,29 @@ const Register = () => {
     e.preventDefault();
     setError('');
     try {
-      console.log("Hallo Register");
-      // Registrierungs-API ohne E-Mail-Verifizierung
+      // Registrierungs-API
       const response = await axios.post('http://localhost:5000/api/users/register', formData);
       alert(response.data.message);
+
+      // Event-Erstellung nur für Veranstalter
+      if (formData.role === 'organizer') {
+        const eventData = {
+          title: formData.eventTitle,
+          description: formData.eventDescription,
+          date: formData.eventDate,
+          time: formData.eventTime,
+          eventType: formData.eventType,
+          accessibilityOptions: formData.accessibilityOptions
+        };
+
+        const eventResponse = await axios.post('http://localhost:5000/api/events', eventData);
+        alert('Event erfolgreich erstellt!');
+      }
+
       navigate('/login'); // Nach erfolgreicher Registrierung zum Login weiterleiten
     } catch (error) {
       console.log(error.response);
-      setError(error.response?.data?.message || 'Fehler bei der Registrierung');
+      setError(error.response?.data?.message || 'Fehler bei der Registrierung oder Event-Erstellung');
     }
   };
 
@@ -64,6 +83,7 @@ const Register = () => {
       {error && <p className="error-message">{error}</p>}
 
       <form onSubmit={handleSubmit}>
+        {/* Benutzername, Passwort und E-Mail */}
         <div className="form-group">
           <label htmlFor="username">Benutzername</label>
           <input 
@@ -114,6 +134,7 @@ const Register = () => {
           </select>
         </div>
 
+        {/* Eventinformationen nur anzeigen, wenn der Benutzer ein Veranstalter ist */}
         {formData.role === 'organizer' && (
           <>
             <div className="form-group">
@@ -141,46 +162,56 @@ const Register = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="date">Datum</label>
+              <label htmlFor="eventTitle">Event-Titel</label>
+              <input 
+                type="text" 
+                name="eventTitle" 
+                id="eventTitle" 
+                value={formData.eventTitle} 
+                onChange={handleChange} 
+                required 
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="eventDescription">Event-Beschreibung</label>
+              <input 
+                type="text" 
+                name="eventDescription" 
+                id="eventDescription" 
+                value={formData.eventDescription} 
+                onChange={handleChange} 
+                required 
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="eventDate">Event-Datum</label>
               <input 
                 type="date" 
-                name="date" 
-                id="date" 
-                value={formData.date} 
+                name="eventDate" 
+                id="eventDate" 
+                value={formData.eventDate} 
                 onChange={handleChange} 
                 required 
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="time">Uhrzeit</label>
+              <label htmlFor="eventTime">Event-Uhrzeit</label>
               <input 
                 type="time" 
-                name="time" 
-                id="time" 
-                value={formData.time} 
+                name="eventTime" 
+                id="eventTime" 
+                value={formData.eventTime} 
                 onChange={handleChange} 
                 required 
               />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="eventType">Event-Typ</label>
-              <select 
-                name="eventType" 
-                id="eventType" 
-                value={formData.eventType} 
-                onChange={handleChange}
-                required
-              >
-                {eventTypes.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
             </div>
           </>
         )}
 
+        {/* Barrierefreiheit */}
         <fieldset className="form-group">
           <legend>♿ Barrierefreiheit</legend>
           {accessibilityOptions.map(option => (
@@ -196,7 +227,7 @@ const Register = () => {
           ))}
         </fieldset>
 
-        <button type="submit" className="form-button">🚀 Registrieren</button>
+        <button type="submit" className="form-button">🚀 Registrieren und Event Erstellen</button>
       </form>
     </div>
   );

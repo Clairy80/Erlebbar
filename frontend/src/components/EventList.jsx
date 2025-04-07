@@ -14,7 +14,7 @@ const EventList = ({ events, searchQuery }) => {
         aria-live="polite" 
         style={{ color: "red", fontWeight: "bold", textAlign: "center", marginTop: "1rem" }}
       >
-        {searchQuery ? `🔍 Keine Events in "${searchQuery}" gefunden.` : ""}
+        {searchQuery ? `🔍 Keine Events in "${searchQuery}" gefunden.` : "🔍 Keine Events gefunden."}
       </p>
     );
   }
@@ -48,7 +48,7 @@ const EventList = ({ events, searchQuery }) => {
           aria-labelledby={`event-title-${event._id}`}
         >
           <h3 id={`event-title-${event._id}`} style={{ marginBottom: '0.5rem' }}>{event.title}</h3>
-          <p style={{ color: '#666', marginBottom: '0.5rem' }}>{event.description}</p>
+          <p style={{ color: '#666', marginBottom: '0.5rem' }}>{event.description || "Keine Beschreibung verfügbar"}</p>
 
           <p style={{ display: 'flex', alignItems: 'center', color: '#333' }}>
             <FaCalendarAlt style={{ marginRight: '0.5rem', color: '#646cff' }} aria-hidden="true" />
@@ -68,13 +68,17 @@ const EventList = ({ events, searchQuery }) => {
           {/* 🏆 Sterne-Bewertung anzeigen */}
           <p style={{ display: 'flex', alignItems: 'center', color: '#333' }}>
             <span style={{ marginRight: '0.5rem', fontSize: "1.2rem" }}>⭐</span>
-            <span aria-label="Bewertung">{event.rating ? `${event.rating} Sterne` : "Noch keine Bewertung"}</span>
+            <span aria-label="Bewertung">
+              {event.rating ? `${event.rating} Sterne` : "Noch keine Bewertung"}
+            </span>
           </p>
 
           {/* ♿ Barrierefreiheit anzeigen */}
           <p style={{ display: 'flex', alignItems: 'center', color: '#333' }}>
             <span style={{ marginRight: '0.5rem' }}>♿</span>
-            <span aria-label="Barrierefreiheit">{event.accessible ? "Barrierefrei" : "Nicht barrierefrei"}</span>
+            <span aria-label="Barrierefreiheit">
+              {event.accessible ? "Barrierefrei" : "Nicht barrierefrei"}
+            </span>
           </p>
 
           {/* 👨‍👩‍👧‍👦 Zielgruppe anzeigen */}

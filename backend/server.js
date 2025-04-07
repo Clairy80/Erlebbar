@@ -11,6 +11,15 @@ import ratingRoutes from './routes/ratingRoutes.js';
 
 dotenv.config();
 
+const app = express();
+
+// 🌍 **Sichere CORS-Konfiguration**
+const allowedOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : ['http://localhost:5173']; // Definiert die zugelassenen Ursprünge
+app.use(cors({
+  origin: allowedOrigins, // Ursprünge von der Umgebungsvariable oder default localhost
+  credentials: true, // Wenn du Cookies und Authentifizierung mit Anfragen verwenden möchtest
+}));
+
 // 🔥 **Datenbankverbindung mit Fehlerhandling**
 const startServer = async () => {
   try {
@@ -21,15 +30,9 @@ const startServer = async () => {
     process.exit(1); // 🚨 Kritischer Fehler → Server nicht starten!
   }
 
-  const app = express();
-
   // 🛠 **Middleware**
   app.use(express.json()); // JSON-Parsing aktivieren
   app.use(express.urlencoded({ extended: true })); // Form-Daten erlauben
-
-  // 🌍 **Sichere CORS-Konfiguration**
-  const allowedOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : ['http://localhost:5173'];
-  app.use(cors({ origin: allowedOrigins, credentials: true }));
 
   // 📌 **API-Routen registrieren**
   app.use('/api/users', userRoutes);
@@ -56,7 +59,6 @@ console.log("🔗 Events-Route geladen:", Object.keys(eventRoutes));
 console.log("🔗 Users-Route geladen:", Object.keys(userRoutes));
 console.log("🔗 Locations-Route geladen:", Object.keys(locationRoutes));
 console.log("🔗 Ratings-Route geladen:", Object.keys(ratingRoutes));
-
 
 // 🏁 **Server starten**
 startServer();
