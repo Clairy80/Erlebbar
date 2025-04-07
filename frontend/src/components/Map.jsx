@@ -28,9 +28,22 @@ const RecenterAutomatically = ({ lat, lon }) => {
   return null;
 };
 
+const haversineDistance = ([lat1, lon1], [lat2, lon2]) => {
+  const toRad = (value) => (value * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
 const Map = ({ location }) => {
   const [events, setEvents] = useState([]);
   const [locations, setLocations] = useState([]);
+  const [nearbyEvents, setNearbyEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [mapCenter, setMapCenter] = useState([51.1657, 10.4515]);
@@ -64,6 +77,16 @@ const Map = ({ location }) => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (events.length && mapCenter) {
+      const filteredEvents = events.filter((event) => {
+        const distance = haversineDistance(mapCenter, [parseFloat(event.lat), parseFloat(event.lon)]);
+        return distance <= 50;
+      });
+      setNearbyEvents(filteredEvents);
+    }
+  }, [events, mapCenter]);
+
   return (
     <div>
       {error && <p style={{ color: "red" }}>{error}</p>}
@@ -76,14 +99,23 @@ const Map = ({ location }) => {
         />
         <RecenterAutomatically lat={mapCenter[0]} lon={mapCenter[1]} />
 
-        {events.map((event) => (
+        {nearbyEvents.map((event) => (
           <Marker
             key={event._id}
             position={[parseFloat(event.lat), parseFloat(event.lon)]}
             icon={eventIcon}
             eventHandlers={{ click: () => setSelectedEvent(event) }}
           >
-            <Popup>{event.title}</Popup>
+            <Popup>
+              <h3>{event.title}</h3>
+              <p>{event.description || "Keine Beschreibung verfügbar."}</p>
+              <p>📅 {event.date ? new Date(event.date).toLocaleDateString() : "Datum unbekannt"}</p>
+              <p>🕒 {event.time || "Uhrzeit unbekannt"}</p>
+              <p>📍 {event.location || "Ort unbekannt"}</p>
+              <p>⭐ {event.rating ? `${event.rating} Sterne` : "Noch keine Bewertung"}</p>
+              <p>♿ {event.accessible ? "Barrierefrei" : "Nicht barrierefrei"}</p>
+              <p>👨‍👩‍👧‍👦 {event.suitableFor || "Keine Angabe"}</p>
+            </Popup>
           </Marker>
         ))}
 
@@ -98,7 +130,17 @@ const Map = ({ location }) => {
         ))}
       </MapContainer>
 
-      {selectedEvent && <EventList events={[selectedEvent]} />}
+      {!loading && nearbyEvents.length > 0 && <EventList events={nearbyEvents} />}
+
+      {!loading && nearbyEvents.length === 0 && (
+        <p
+          role="status"
+          aria-live="polite"
+          style={{ color: "red", textAlign: "center", marginTop: "1rem", fontWeight: "bold" }}
+        >
+          🔍 Keine Events in deiner Nähe gefunden.
+        </p>
+      )}
     </div>
   );
 };

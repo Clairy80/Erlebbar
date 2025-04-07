@@ -1,22 +1,13 @@
 import React, { useEffect } from 'react';
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock } from 'react-icons/fa';
 
-const EventList = ({ events, searchQuery }) => {
+const EventList = ({ events }) => {
   useEffect(() => {
     console.log("🎯 Empfangene Events in EventList:", events);
   }, [events]);
 
-  // Falls keine Events gefunden wurden, zeige stattdessen den Suchort (falls vorhanden)
   if (!events || events.length === 0) {
-    return (
-      <p 
-        role="status" 
-        aria-live="polite" 
-        style={{ color: "red", fontWeight: "bold", textAlign: "center", marginTop: "1rem" }}
-      >
-        {searchQuery ? `🔍 Keine Events in "${searchQuery}" gefunden.` : "🔍 Keine Events gefunden."}
-      </p>
-    );
+    return null;
   }
 
   return (
@@ -65,7 +56,6 @@ const EventList = ({ events, searchQuery }) => {
             <span aria-label="Ort">{event.location || "Ort unbekannt"}</span>
           </p>
 
-          {/* 🏆 Sterne-Bewertung anzeigen */}
           <p style={{ display: 'flex', alignItems: 'center', color: '#333' }}>
             <span style={{ marginRight: '0.5rem', fontSize: "1.2rem" }}>⭐</span>
             <span aria-label="Bewertung">
@@ -73,7 +63,6 @@ const EventList = ({ events, searchQuery }) => {
             </span>
           </p>
 
-          {/* ♿ Barrierefreiheit anzeigen */}
           <p style={{ display: 'flex', alignItems: 'center', color: '#333' }}>
             <span style={{ marginRight: '0.5rem' }}>♿</span>
             <span aria-label="Barrierefreiheit">
@@ -81,7 +70,6 @@ const EventList = ({ events, searchQuery }) => {
             </span>
           </p>
 
-          {/* 👨‍👩‍👧‍👦 Zielgruppe anzeigen */}
           <p style={{ display: 'flex', alignItems: 'center', color: '#333' }}>
             <span style={{ marginRight: '0.5rem' }}>👨‍👩‍👧‍👦</span>
             <span aria-label="Zielgruppe">{event.suitableFor || "Keine Angabe"}</span>
