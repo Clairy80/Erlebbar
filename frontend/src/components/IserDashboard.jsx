@@ -12,7 +12,7 @@ const UserDashboard = () => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const response = await axios.get("/api/saved-events", {
+        const response = await axios.get("/api/users/saved-events", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -53,7 +53,11 @@ const UserDashboard = () => {
             >
               <h3 style={{ margin: 0 }}>{event.title}</h3>
               <p style={{ margin: "0.5rem 0" }}>📅 {new Date(event.date).toLocaleDateString()}</p>
-              <p>📍 {event.location || "Ort nicht angegeben"}</p>
+              <p>📍 {event.city || event.location || "Ort nicht angegeben"}</p>
+              <p>🕒 {event.time || "Uhrzeit unbekannt"}</p>
+              <p>⭐ {event.rating ? `${event.rating} Sterne` : "Noch keine Bewertung"}</p>
+              <p>♿ {event.accessible ? "Barrierefrei" : "Nicht barrierefrei"}</p>
+              <p>👨‍👩‍👧‍👦 {event.suitableFor || "Keine Angabe"}</p>
             </li>
           ))}
         </ul>

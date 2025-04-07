@@ -49,9 +49,40 @@ const Map = ({ location }) => {
   const [mapCenter, setMapCenter] = useState([51.1657, 10.4515]);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
+  const handleSaveEvent = async (eventId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Bitte zuerst einloggen, um Events zu speichern.");
+        return;
+      }
+
+      await axios.put(`/api/users/save-event/${eventId}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      alert("🎉 Event wurde gespeichert!");
+    } catch (err) {
+      console.error("❌ Fehler beim Speichern:", err);
+      alert("Fehler beim Speichern. Bitte versuch es später erneut.");
+    }
+  };
+
   useEffect(() => {
     if (location && location.length === 2) {
       setMapCenter(location);
+    } else if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setMapCenter([latitude, longitude]);
+        },
+        (error) => {
+          console.warn("⚠️ Geolocation fehlgeschlagen oder blockiert:", error);
+        }
+      );
     }
   }, [location]);
 
@@ -115,6 +146,20 @@ const Map = ({ location }) => {
               <p>⭐ {event.rating ? `${event.rating} Sterne` : "Noch keine Bewertung"}</p>
               <p>♿ {event.accessible ? "Barrierefrei" : "Nicht barrierefrei"}</p>
               <p>👨‍👩‍👧‍👦 {event.suitableFor || "Keine Angabe"}</p>
+              <button
+                onClick={() => handleSaveEvent(event._id)}
+                style={{
+                  marginTop: "0.5rem",
+                  padding: "0.3rem 0.6rem",
+                  backgroundColor: "#646cff",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer"
+                }}
+              >
+                💾 Event speichern
+              </button>
             </Popup>
           </Marker>
         ))}
