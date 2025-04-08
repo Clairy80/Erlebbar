@@ -68,14 +68,20 @@ export const loginUser = asyncHandler(async (req, res) => {
   });
 });
 
+
 // 🔍 Benutzerprofil abrufen
 export const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user.id).select('-password');
+  const user = await User.findById(req.user.id)
+    .select("-password")
+    .populate("savedEvents"); // <<<<< DAS HAT GEFEHLT!
+
   if (!user) {
-    return res.status(404).json({ message: 'Benutzer nicht gefunden.' });
+    return res.status(404).json({ message: "Benutzer nicht gefunden." });
   }
+
   res.json(user);
 });
+
 
 // 💾 Event speichern
 export const saveEventToUser = asyncHandler(async (req, res) => {

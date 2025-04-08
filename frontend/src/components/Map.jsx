@@ -119,11 +119,11 @@ const Map = ({ location }) => {
   }, [events, mapCenter]);
 
   return (
-    <div>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {loading && <p>⏳ Karten-Daten werden geladen...</p>}
+    <div className="map-wrapper">
+      {error && <p className="error-text">{error}</p>}
+      {loading && <p className="loading-text">⏳ Karten-Daten werden geladen...</p>}
 
-      <MapContainer center={mapCenter} zoom={12} style={{ height: "500px", width: "100%" }}>
+      <MapContainer center={mapCenter} zoom={12} className="map-container">
         <TileLayer
           attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -148,15 +148,7 @@ const Map = ({ location }) => {
               <p>👨‍👩‍👧‍👦 {event.suitableFor || "Keine Angabe"}</p>
               <button
                 onClick={() => handleSaveEvent(event._id)}
-                style={{
-                  marginTop: "0.5rem",
-                  padding: "0.3rem 0.6rem",
-                  backgroundColor: "#646cff",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer"
-                }}
+                className="popup-save-btn"
               >
                 💾 Event speichern
               </button>
@@ -181,7 +173,7 @@ const Map = ({ location }) => {
         <p
           role="status"
           aria-live="polite"
-          style={{ color: "red", textAlign: "center", marginTop: "1rem", fontWeight: "bold" }}
+          className="no-events-text"
         >
           🔍 Keine Events in deiner Nähe gefunden.
         </p>

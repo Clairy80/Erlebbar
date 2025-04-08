@@ -39,12 +39,14 @@ const UserDashboardPage = () => {
         <>
           <p>Willkommen, {user.username}!</p>
           <p>📧 Email: {user.email}</p>
-          <p>🌟 Deine gespeicherten Events</p>
-          <ul>
+          <h2>🌟 Deine gespeicherten Events</h2>
+          <ul style={{ listStyle: "none", padding: 0 }}>
             {user.savedEvents && user.savedEvents.length > 0 ? (
-              user.savedEvents.map((event) => <li key={event._id}>{event.title}</li>)
+              user.savedEvents.map((event) => (
+                <li key={event._id}>{event.title}</li>
+              ))
             ) : (
-              <p>⚠️ Keine gespeicherten Events.</p>
+              <li key="no-events">⚠️ Keine gespeicherten Events.</li>
             )}
           </ul>
           <button
