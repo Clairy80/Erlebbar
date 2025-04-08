@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const UserDashboardPage = () => {
   const navigate = useNavigate();
@@ -17,14 +18,12 @@ const UserDashboardPage = () => {
 
   const fetchUserProfile = async (token) => {
     try {
-      const response = await fetch("http://localhost:5000/api/users/profile", {
+      const response = await axios.get("/api/users/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!response.ok) throw new Error("Fehler beim Abrufen des Nutzerprofils");
-      const userData = await response.json();
-      setUser(userData);
+      setUser(response.data);
     } catch (error) {
-      console.error("❌ Fehler:", error);
+      console.error("❌ Fehler beim Abrufen des Profils:", error);
     } finally {
       setLoading(false);
     }
@@ -33,6 +32,35 @@ const UserDashboardPage = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
+  };
+
+  const handleUnsave = async (eventId) => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete(`/api/users/unsave-event/${eventId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUser((prev) => ({
+        ...prev,
+        savedEvents: prev.savedEvents.filter((e) => e._id !== eventId),
+      }));
+    } catch (err) {
+      console.error("❌ Fehler beim Entfernen des Events:", err);
+    }
+  };
+
+  const handleRating = async (eventId, rating) => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.post(
+        `/api/events/${eventId}/rate`,
+        { rating },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("⭐ Bewertung gespeichert!");
+    } catch (err) {
+      console.error("❌ Bewertungsfehler:", err);
+    }
   };
 
   return (
@@ -58,6 +86,23 @@ const UserDashboardPage = () => {
                     ⏰ {event.time || "Keine Uhrzeit"}<br />
                     ♿ {event.accessible ? "Barrierefrei" : "Nicht barrierefrei"}
                   </p>
+                  <div className="rating-stars">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span
+                        key={star}
+                        className="star"
+                        onClick={() => handleRating(event._id, star)}
+                      >
+                        ⭐
+                      </span>
+                    ))}
+                  </div>
+                  <button
+                    className="unsave-button"
+                    onClick={() => handleUnsave(event._id)}
+                  >
+                    ❌ Entfernen
+                  </button>
                 </div>
               ))}
             </div>
