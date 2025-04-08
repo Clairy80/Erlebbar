@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 const UserDashboard = () => {
   const [savedEvents, setSavedEvents] = useState([]);
@@ -28,9 +29,21 @@ const UserDashboard = () => {
     fetchSavedEvents();
   }, []);
 
+  const handleUnsave = async (eventId) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`/api/users/unsave-event/${eventId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSavedEvents((prev) => prev.filter((event) => event._id !== eventId));
+    } catch (error) {
+      console.error("❌ Fehler beim Entfernen:", error);
+    }
+  };
+
   return (
-    <div className="dashboard-container" style={{ padding: "2rem" }}>
-      <h1 style={{ marginBottom: "1rem" }}>📂 Mein Bereich</h1>
+    <div className="user-dashboard">
+      <h2>📌 Dein Dashboard</h2>
 
       {loading ? (
         <p>⏳ Lade deine gespeicherten Events...</p>
@@ -39,28 +52,30 @@ const UserDashboard = () => {
       ) : savedEvents.length === 0 ? (
         <p>Du hast noch keine Events gespeichert.</p>
       ) : (
-        <ul style={{ listStyle: "none", padding: 0 }}>
+        <div className="saved-events">
           {savedEvents.map((event) => (
-            <li
-              key={event._id}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                padding: "1rem",
-                marginBottom: "1rem",
-                backgroundColor: "#f9f9f9",
-              }}
-            >
-              <h3 style={{ margin: 0 }}>{event.title}</h3>
-              <p style={{ margin: "0.5rem 0" }}>📅 {new Date(event.date).toLocaleDateString()}</p>
-              <p>📍 {event.city || event.location || "Ort nicht angegeben"}</p>
-              <p>🕒 {event.time || "Uhrzeit unbekannt"}</p>
-              <p>⭐ {event.rating ? `${event.rating} Sterne` : "Noch keine Bewertung"}</p>
-              <p>♿ {event.accessible ? "Barrierefrei" : "Nicht barrierefrei"}</p>
-              <p>👨‍👩‍👧‍👦 {event.suitableFor || "Keine Angabe"}</p>
-            </li>
+            <div key={event._id} className="event-card">
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <h3 className="event-title">{event.title}</h3>
+                <button
+                  className="event-save-button"
+                  onClick={() => handleUnsave(event._id)}
+                  title="Event entfernen"
+                >
+                  <FaHeart />
+                </button>
+              </div>
+              <p className="event-meta">
+                📅 {new Date(event.date).toLocaleDateString()}<br />
+                📍 {event.city || event.location || "Ort nicht angegeben"}<br />
+                🕒 {event.time || "Uhrzeit unbekannt"}<br />
+                ⭐ {event.rating ? `${event.rating} Sterne` : "Noch keine Bewertung"}<br />
+                ♿ {event.accessible ? "Barrierefrei" : "Nicht barrierefrei"}<br />
+                👨‍👩‍👧‍👦 {event.suitableFor || "Keine Angabe"}
+              </p>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 const UserDashboardPage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -24,6 +25,8 @@ const UserDashboardPage = () => {
       setUser(userData);
     } catch (error) {
       console.error("❌ Fehler:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,39 +36,41 @@ const UserDashboardPage = () => {
   };
 
   return (
-    <div style={{ padding: "2rem", textAlign: "center" }}>
-      <h1>📌 Dein Dashboard</h1>
-      {user ? (
+    <div className="user-dashboard">
+      <h2>📌 Dein Dashboard</h2>
+
+      {loading ? (
+        <p>⏳ Lade deine Daten...</p>
+      ) : user ? (
         <>
-          <p>Willkommen, {user.username}!</p>
-          <p>📧 Email: {user.email}</p>
-          <h2>🌟 Deine gespeicherten Events</h2>
-          <ul style={{ listStyle: "none", padding: 0 }}>
-            {user.savedEvents && user.savedEvents.length > 0 ? (
-              user.savedEvents.map((event) => (
-                <li key={event._id}>{event.title}</li>
-              ))
-            ) : (
-              <li key="no-events">⚠️ Keine gespeicherten Events.</li>
-            )}
-          </ul>
-          <button
-            onClick={handleLogout}
-            style={{
-              marginTop: "20px",
-              padding: "10px 20px",
-              backgroundColor: "#e74c3c",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-          >
+          <p>Willkommen, <strong>{user.username}</strong>!</p>
+          <p>📧 <span style={{ fontFamily: "monospace" }}>{user.email}</span></p>
+
+          <h3>🌟 Deine gespeicherten Events</h3>
+          {user.savedEvents?.length > 0 ? (
+            <div className="saved-events">
+              {user.savedEvents.map((event) => (
+                <div key={event._id} className="event-card">
+                  <h3>{event.title}</h3>
+                  <p className="event-meta">
+                    📅 {new Date(event.date).toLocaleDateString()}<br />
+                    📍 {event.city || "Unbekannt"}<br />
+                    ⏰ {event.time || "Keine Uhrzeit"}<br />
+                    ♿ {event.accessible ? "Barrierefrei" : "Nicht barrierefrei"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ marginTop: "1rem", color: "gray" }}>⚠️ Keine gespeicherten Events.</p>
+          )}
+
+          <button className="form-button" onClick={handleLogout} style={{ maxWidth: "200px", margin: "2rem auto 0" }}>
             Abmelden
           </button>
         </>
       ) : (
-        <p>⏳ Lade deine Daten...</p>
+        <p>⚠️ Fehler beim Laden des Profils.</p>
       )}
     </div>
   );
