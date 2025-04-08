@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import axios from "axios";
 import L from "leaflet";
 import EventList from "./EventList";
+import api from "../api"; // 🔄 Dein zentrales Axios-Setup
 
 const eventIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
@@ -57,12 +57,11 @@ const Map = ({ location }) => {
         return;
       }
 
-      await axios.put(`/api/users/save-event/${eventId}`, {}, {
+      await api.put(`/api/users/save-event/${eventId}`, {}, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       alert("🎉 Event wurde gespeichert!");
     } catch (err) {
       console.error("❌ Fehler beim Speichern:", err);
@@ -92,13 +91,14 @@ const Map = ({ location }) => {
       setError(null);
       try {
         const [eventsRes, locationsRes] = await Promise.all([
-          axios.get("/api/events"),
-          axios.get("/api/locations"),
+          api.get("/api/events"),
+          api.get("/api/locations"),
         ]);
 
         setEvents(eventsRes.data || []);
         setLocations(locationsRes.data || []);
       } catch (err) {
+        console.error(err);
         setError("Daten konnten nicht geladen werden.");
       } finally {
         setLoading(false);

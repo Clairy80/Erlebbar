@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "../api"; 
 
 const UserDashboardPage = () => {
   const navigate = useNavigate();
@@ -52,14 +53,15 @@ const UserDashboardPage = () => {
   const handleRating = async (eventId, rating) => {
     const token = localStorage.getItem("token");
     try {
-      await axios.post(
+      await api.post(
         `/api/events/${eventId}/rate`,
         { rating },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert("⭐ Bewertung gespeichert!");
+      alert(`⭐ Bewertung gespeichert: ${rating} Stern${rating === 1 ? "" : "e"}\n1 = schlecht, 5 = super`);
     } catch (err) {
       console.error("❌ Bewertungsfehler:", err);
+      alert("❌ Bewertung konnte nicht gespeichert werden.");
     }
   };
 
@@ -86,11 +88,12 @@ const UserDashboardPage = () => {
                     ⏰ {event.time || "Keine Uhrzeit"}<br />
                     ♿ {event.accessible ? "Barrierefrei" : "Nicht barrierefrei"}
                   </p>
-                  <div className="rating-stars">
+                  <div className="rating-stars" aria-label="Bewerte dieses Event">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <span
                         key={star}
                         className="star"
+                        title={`${star} Stern${star === 1 ? "" : "e"}: ${getRatingLabel(star)}`}
                         onClick={() => handleRating(event._id, star)}
                       >
                         ⭐
@@ -110,7 +113,11 @@ const UserDashboardPage = () => {
             <p style={{ marginTop: "1rem", color: "gray" }}>⚠️ Keine gespeicherten Events.</p>
           )}
 
-          <button className="form-button" onClick={handleLogout} style={{ maxWidth: "200px", margin: "2rem auto 0" }}>
+          <button
+            className="form-button"
+            onClick={handleLogout}
+            style={{ maxWidth: "200px", margin: "2rem auto 0" }}
+          >
             Abmelden
           </button>
         </>
@@ -119,6 +126,17 @@ const UserDashboardPage = () => {
       )}
     </div>
   );
+};
+
+const getRatingLabel = (star) => {
+  switch (star) {
+    case 1: return "schlecht";
+    case 2: return "geht so";
+    case 3: return "okay";
+    case 4: return "gut";
+    case 5: return "super";
+    default: return "";
+  }
 };
 
 export default UserDashboardPage;

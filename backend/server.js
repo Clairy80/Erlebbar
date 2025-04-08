@@ -39,6 +39,7 @@ const startServer = async () => {
   app.use('/api/events', eventRoutes);
   app.use('/api/locations', locationRoutes);
   app.use('/api/ratings', ratingRoutes);
+  
 
   // ✅ **Test-Route**
   app.get('/', (req, res) => {

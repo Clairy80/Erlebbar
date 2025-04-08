@@ -10,7 +10,7 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// 🆕 Bewertung erstellen
+// 🆕 Bewertung erstellen (POST /api/ratings)
 router.post('/', protect, async (req, res) => {
   try {
     await createRating(req, res);
@@ -20,7 +20,7 @@ router.post('/', protect, async (req, res) => {
   }
 });
 
-// 📥 Bewertungen für ein bestimmtes Event abrufen
+// 📥 Bewertungen für ein bestimmtes Event abrufen (GET /api/ratings/event/:eventId)
 router.get('/event/:eventId', async (req, res) => {
   try {
     await getRatingsForEvent(req, res);
@@ -30,7 +30,7 @@ router.get('/event/:eventId', async (req, res) => {
   }
 });
 
-// 📥 Bewertungen für eine bestimmte Location abrufen
+// 📥 Bewertungen für eine bestimmte Location abrufen (GET /api/ratings/location/:locationId)
 router.get('/location/:locationId', async (req, res) => {
   try {
     await getRatingsForLocation(req, res);
@@ -40,7 +40,7 @@ router.get('/location/:locationId', async (req, res) => {
   }
 });
 
-// ❌ Bewertung löschen
+// ❌ Bewertung löschen (DELETE /api/ratings/:ratingId)
 router.delete('/:ratingId', protect, async (req, res) => {
   try {
     await deleteRating(req, res);

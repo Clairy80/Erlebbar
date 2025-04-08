@@ -17,6 +17,11 @@ import SavedEvents from "./pages/SavedEvents.jsx";
 import SpendenPage from "./pages/SpendenPage.jsx";
 import WelcomeHeader from './components/WelcomeHeader.jsx';
 
+
+// In deinem <Routes> Block:
+<Route path="/saved-events" element={<SavedEvents />} />
+
+
 import "leaflet/dist/leaflet.css";
 import { geocodeLocation, fetchEvents } from "./api/api";
 import "./index.css";
@@ -95,7 +100,7 @@ const App = () => {
           <Route path="/veranstalter" element={user ? <OrganizerDashboardPage /> : <Navigate to="/login" />} />
           <Route path="/dashboard" element={user ? <UserDashboardPage /> : <Navigate to="/login" />} />
           <Route path="/saved-events" element={user ? <SavedEvents /> : <Navigate to="/login" />} />
-          <Route path="/kontaktanzeigen" element={<KontaktanzeigeForm />} />
+          <Route path="/kontaktanzeigen" element={<KontaktanzeigeForm />} /> 
           <Route path="/impressum" element={<ImpressumPage />} />
           <Route path="/datenschutz" element={<DatenschutzPage />} />
           <Route path="/spenden" element={<SpendenPage />} />
