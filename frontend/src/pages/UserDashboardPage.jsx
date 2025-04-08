@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import api from "../api"; 
+import api from "../api"; // ✅ Zentrales Axios-Setup
 
 const UserDashboardPage = () => {
   const navigate = useNavigate();
@@ -19,7 +18,7 @@ const UserDashboardPage = () => {
 
   const fetchUserProfile = async (token) => {
     try {
-      const response = await axios.get("/api/users/profile", {
+      const response = await api.get("/api/users/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(response.data);
@@ -38,7 +37,7 @@ const UserDashboardPage = () => {
   const handleUnsave = async (eventId) => {
     const token = localStorage.getItem("token");
     try {
-      await axios.delete(`/api/users/unsave-event/${eventId}`, {
+      await api.delete(`/api/users/unsave-event/${eventId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser((prev) => ({
@@ -53,7 +52,7 @@ const UserDashboardPage = () => {
   const handleRating = async (eventId, rating) => {
     const token = localStorage.getItem("token");
     try {
-      await api.post(
+      await api.put(
         `/api/events/${eventId}/rate`,
         { rating },
         { headers: { Authorization: `Bearer ${token}` } }
