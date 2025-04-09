@@ -18,13 +18,6 @@ const locationIcon = new L.Icon({
   popupAnchor: [1, -34],
 });
 
-const transportIcon = new L.Icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/61/61205.png",
-  iconSize: [40, 40],
-  iconAnchor: [20, 40],
-  popupAnchor: [0, -40],
-});
-
 const RecenterAutomatically = ({ lat, lon }) => {
   const map = useMap();
   useEffect(() => {
@@ -188,7 +181,29 @@ const Map = ({ location }) => {
           <Marker
             key={stop._id}
             position={[stop.lat, stop.lon]}
-            icon={transportIcon}
+            icon={L.divIcon({
+              className: "custom-transport-icon",
+              html: `
+                <div style="
+                  background-color: ${stop.wheelchair ? '#4caf50' : '#f44336'};
+                  color: white;
+                  border-radius: 50%;
+                  width: 36px;
+                  height: 36px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: 20px;
+                  border: 2px solid white;
+                  box-shadow: 0 0 4px rgba(0,0,0,0.5);
+                ">
+                  ${stop.wheelchair ? "♿" : "🚫"}
+                </div>
+              `,
+              iconSize: [36, 36],
+              iconAnchor: [18, 36],
+              popupAnchor: [0, -36],
+            })}
           >
             <Popup>
               🚉 <strong>{stop.name}</strong><br />
