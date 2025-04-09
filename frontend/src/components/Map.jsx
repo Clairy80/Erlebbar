@@ -18,6 +18,13 @@ const locationIcon = new L.Icon({
   popupAnchor: [1, -34],
 });
 
+const transportIcon = new L.Icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/61/61205.png",
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+  popupAnchor: [0, -40],
+});
+
 const RecenterAutomatically = ({ lat, lon }) => {
   const map = useMap();
   useEffect(() => {
@@ -44,6 +51,7 @@ const Map = ({ location }) => {
   const [events, setEvents] = useState([]);
   const [locations, setLocations] = useState([]);
   const [nearbyEvents, setNearbyEvents] = useState([]);
+  const [transportStops, setTransportStops] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [mapCenter, setMapCenter] = useState([51.1657, 10.4515]);
@@ -90,13 +98,15 @@ const Map = ({ location }) => {
       setLoading(true);
       setError(null);
       try {
-        const [eventsRes, locationsRes] = await Promise.all([
+        const [eventsRes, locationsRes, stopsRes] = await Promise.all([
           api.get("/api/events"),
           api.get("/api/locations"),
+          api.get(`/api/public-transport?lat=${mapCenter[0]}&lon=${mapCenter[1]}`)
         ]);
 
         setEvents(eventsRes.data || []);
         setLocations(locationsRes.data || []);
+        setTransportStops(stopsRes.data || []);
       } catch (err) {
         console.error(err);
         setError("Daten konnten nicht geladen werden.");
@@ -106,7 +116,7 @@ const Map = ({ location }) => {
     };
 
     fetchData();
-  }, []);
+  }, [mapCenter]);
 
   useEffect(() => {
     if (events.length && mapCenter) {
@@ -171,6 +181,19 @@ const Map = ({ location }) => {
             icon={locationIcon}
           >
             <Popup>{loc.name}</Popup>
+          </Marker>
+        ))}
+
+        {transportStops.map((stop) => (
+          <Marker
+            key={stop._id}
+            position={[stop.lat, stop.lon]}
+            icon={transportIcon}
+          >
+            <Popup>
+              🚉 <strong>{stop.name}</strong><br />
+              ♿ {stop.wheelchair ? "Barrierefrei" : "Nicht barrierefrei"}
+            </Popup>
           </Marker>
         ))}
       </MapContainer>

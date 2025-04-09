@@ -8,6 +8,11 @@ import userRoutes from './routes/userRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import locationRoutes from './routes/locationRoutes.js';
 import ratingRoutes from './routes/ratingRoutes.js';
+import publicTransportRoutes from './routes/publicTransportRoutes.js';
+
+
+
+
 
 dotenv.config();
 
@@ -39,6 +44,9 @@ const startServer = async () => {
   app.use('/api/events', eventRoutes);
   app.use('/api/locations', locationRoutes);
   app.use('/api/ratings', ratingRoutes);
+  app.use('/api/public-transport', publicTransportRoutes);
+
+
   
 
   // ✅ **Test-Route**

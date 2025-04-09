@@ -49,6 +49,9 @@ const UserDashboardPage = () => {
     }
   };
 
+  const [userRatings, setUserRatings] = useState({});
+  const [ratingMessages, setRatingMessages] = useState({});
+  
   const handleRating = async (eventId, rating) => {
     const token = localStorage.getItem("token");
     try {
@@ -57,10 +60,33 @@ const UserDashboardPage = () => {
         { rating },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert(`⭐ Bewertung gespeichert: ${rating} Stern${rating === 1 ? "" : "e"}\n1 = schlecht, 5 = super`);
+  
+      // ⭐ Stern-Anzahl für dieses Event merken
+      setUserRatings((prev) => ({
+        ...prev,
+        [eventId]: rating,
+      }));
+  
+      // 📣 Textnachricht anzeigen
+      setRatingMessages((prev) => ({
+        ...prev,
+        [eventId]: `⭐ ${rating} Stern${rating === 1 ? '' : 'e'} gespeichert – ${getRatingLabel(rating)}`,
+      }));
+  
+      // ⏳ Nach 3 Sekunden wieder ausblenden
+      setTimeout(() => {
+        setRatingMessages((prev) => {
+          const updated = { ...prev };
+          delete updated[eventId];
+          return updated;
+        });
+      }, 3000);
     } catch (err) {
       console.error("❌ Bewertungsfehler:", err);
-      alert("❌ Bewertung konnte nicht gespeichert werden.");
+      setRatingMessages((prev) => ({
+        ...prev,
+        [eventId]: "❌ Bewertung konnte nicht gespeichert werden.",
+      }));
     }
   };
 
@@ -88,17 +114,22 @@ const UserDashboardPage = () => {
                     ♿ {event.accessible ? "Barrierefrei" : "Nicht barrierefrei"}
                   </p>
                   <div className="rating-stars" aria-label="Bewerte dieses Event">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <span
-                        key={star}
-                        className="star"
-                        title={`${star} Stern${star === 1 ? "" : "e"}: ${getRatingLabel(star)}`}
-                        onClick={() => handleRating(event._id, star)}
-                      >
-                        ⭐
-                      </span>
-                    ))}
-                  </div>
+  {[1, 2, 3, 4, 5].map((star) => (
+    <span
+      key={star}
+      className={`star ${star <= (userRatings[event._id] || 0) ? "active" : ""}`}
+      title={`${star} Stern${star === 1 ? "" : "e"}: ${getRatingLabel(star)}`}
+      onClick={() => handleRating(event._id, star)}
+    >
+      ★
+    </span>
+  ))}
+
+  {ratingMessages[event._id] && (
+    <p className="rating-message">{ratingMessages[event._id]}</p>
+  )}
+</div>
+
                   <button
                     className="unsave-button"
                     onClick={() => handleUnsave(event._id)}
