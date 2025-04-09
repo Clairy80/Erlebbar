@@ -125,8 +125,8 @@ const Map = ({ location }) => {
     <div>
       {error && <p style={{ color: "red" }}>{error}</p>}
       {loading && <p>⏳ Karten-Daten werden geladen...</p>}
-
-      <MapContainer center={mapCenter} zoom={12} style={{ height: "500px", width: "100%" }}>
+      
+      <MapContainer center={mapCenter} key={mapCenter.join("-")} zoom={12} style={{ height: "500px", width: "100%" }}>
         <TileLayer
           attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
