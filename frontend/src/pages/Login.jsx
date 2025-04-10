@@ -2,18 +2,23 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', { username, password });
+      const response = await axios.post('http://localhost:5000/api/users/login', {
+        identifier,
+        password
+      });
+
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('user', JSON.stringify(response.data));
       window.location.href = '/';
     } catch (err) {
+      console.error('❌ Login-Fehler:', err);
       setError(err.response?.data?.message || 'Login fehlgeschlagen');
     }
   };
@@ -25,12 +30,12 @@ const Login = () => {
 
       <form onSubmit={handleLogin} className="login-form">
         <div className="form-group">
-          <label htmlFor="username">Benutzername:</label>
+          <label htmlFor="identifier">Benutzername oder E-Mail:</label>
           <input
             type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            id="identifier"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
             required
           />
         </div>

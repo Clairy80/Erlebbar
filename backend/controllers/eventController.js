@@ -1,12 +1,13 @@
 import asyncHandler from 'express-async-handler';
 import Event from '../models/Event.js';
+import { updateEventAverageRating } from '../utils/ratingUtils.js';
 
 // 🟢 **Event erstellen (nur für Organisatoren)**
 export const createEvent = asyncHandler(async (req, res) => {
     const {
         title, description, date, time, isOnline,
         street, postalCode, city, country, contactEmail, contactPhone,
-        eventType, accessibilityOptions
+        eventType, accessibilityOptions, needsCompanion
     } = req.body;
 
     if (!title || !date || !time) {
@@ -19,6 +20,10 @@ export const createEvent = asyncHandler(async (req, res) => {
 
     if (req.user.role !== 'organizer') {
         return res.status(403).json({ message: 'Nur Organisatoren dürfen Events erstellen!' });
+    }
+
+    if (!isOnline && (!accessibilityOptions || accessibilityOptions.length === 0) && !needsCompanion) {
+        return res.status(400).json({ message: 'Nicht-barrierefreie Events müssen eine Begleitperson erlauben oder barrierefrei sein.' });
     }
 
     let lat = null;
@@ -64,6 +69,7 @@ export const createEvent = asyncHandler(async (req, res) => {
         contactPhone: contactPhone?.trim() || null,
         eventType: eventType || 'default',
         accessibilityOptions: accessibilityOptions || [],
+        needsCompanion: needsCompanion || false
     });
 
     res.status(201).json({ message: "✅ Event erfolgreich erstellt!", event });
@@ -78,7 +84,7 @@ export const getAllEvents = asyncHandler(async (req, res) => {
 // 🔎 **Einzelnes Event per ID abrufen**
 export const getEventById = asyncHandler(async (req, res) => {
     const event = await Event.findById(req.params.id);
-    
+
     if (!event) {
         return res.status(404).json({ message: 'Event nicht gefunden' });
     }
@@ -135,6 +141,7 @@ export const updateEvent = asyncHandler(async (req, res) => {
     event.contactPhone = req.body.contactPhone?.trim() || event.contactPhone;
     event.eventType = req.body.eventType || event.eventType;
     event.accessibilityOptions = req.body.accessibilityOptions || event.accessibilityOptions;
+    event.needsCompanion = req.body.needsCompanion ?? event.needsCompanion;
 
     const updatedEvent = await event.save();
     res.status(200).json({ message: "✅ Event erfolgreich aktualisiert!", event: updatedEvent });
@@ -155,5 +162,3 @@ export const deleteEvent = asyncHandler(async (req, res) => {
     await event.deleteOne();
     res.status(200).json({ message: '✅ Event erfolgreich gelöscht!' });
 });
-
-

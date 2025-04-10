@@ -1,4 +1,3 @@
-// publicTransportController.js
 import axios from "axios";
 
 export const getNearbyPublicTransport = async (req, res) => {
@@ -9,10 +8,12 @@ export const getNearbyPublicTransport = async (req, res) => {
   }
 
   const query = `
-    [out:json];
-    node
-      [public_transport=platform]
-      (around:1000,${lat},${lon});
+    [out:json][timeout:25];
+    (
+      node[public_transport=platform](around:1000,${lat},${lon});
+      node[highway=bus_stop](around:1000,${lat},${lon});
+      node[railway=tram_stop](around:1000,${lat},${lon});
+    );
     out body;
   `;
 
@@ -24,15 +25,28 @@ export const getNearbyPublicTransport = async (req, res) => {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
+   
       }
     );
 
+    if (!response.data?.elements?.length) {
+      return res.status(404).json({ message: "Keine Haltestellen gefunden." });
+    }
+
     const stops = response.data.elements.map((el) => ({
       _id: el.id,
-      name: el.tags.name || "Haltestelle",
+      name: el.tags?.name || "Unbenannte Haltestelle",
       lat: el.lat,
       lon: el.lon,
-      wheelchair: el.tags.wheelchair === "yes",
+      wheelchair: el.tags?.wheelchair === "yes",
+      type:
+        el.tags?.highway === "bus_stop"
+          ? "Bus"
+          : el.tags?.railway === "tram_stop"
+          ? "Tram"
+          : el.tags?.public_transport === "platform"
+          ? "Bahn/ÖPNV"
+          : "Unbekannt",
     }));
 
     res.json(stops);

@@ -9,12 +9,17 @@ const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
-// 📝 Benutzer-Registrierung
+// 📝 Registrierung + Event-Erstellung für Veranstalter
 export const registerUser = asyncHandler(async (req, res) => {
-  const { username, email, password, role } = req.body;
+  const {
+    username, email, password, role,
+    organization, address,
+    eventTitle, eventDescription, eventDate, eventTime,
+    accessibilityOptions
+  } = req.body;
 
   if (!username || !email || !password) {
-    return res.status(400).json({ message: 'Bitte alle Felder ausfüllen.' });
+    return res.status(400).json({ message: 'Bitte alle Pflichtfelder ausfüllen.' });
   }
 
   const existingUser = await User.findOne({ $or: [{ email }, { username }] });
@@ -32,6 +37,42 @@ export const registerUser = asyncHandler(async (req, res) => {
     isVerified: true,
   });
 
+  // 📅 Event automatisch anlegen bei Veranstaltern
+  if (role === 'organizer' && address && eventTitle && eventDate && eventTime) {
+    const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+    const geoData = await geoRes.json();
+
+    if (!geoData.length) {
+      return res.status(400).json({ message: 'Adresse konnte nicht geocodiert werden.' });
+    }
+
+    const { lat, lon, display_name } = geoData[0];
+    const addressParts = display_name.split(',').map(p => p.trim());
+
+    const city = addressParts.find(p => p.match(/\d{5}/)) || 'Unbekannt';
+    const country = addressParts[addressParts.length - 1] || 'Deutschland';
+
+    await Event.create({
+      organizer: user._id,
+      title: eventTitle.trim(),
+      description: eventDescription || "",
+      date: eventDate,
+      time: eventTime,
+      isOnline: false,
+      street: address,
+      postalCode: "00000",
+      city,
+      country,
+      lat: parseFloat(lat),
+      lon: parseFloat(lon),
+      contactEmail: email,
+      contactPhone: "+49 1234567890",
+      accessibilityOptions,
+      suitableFor: "Alle",
+      needsCompanion: false
+    });
+  }
+
   const token = generateToken(user._id);
 
   res.status(201).json({
@@ -40,19 +81,25 @@ export const registerUser = asyncHandler(async (req, res) => {
     email: user.email,
     role: user.role,
     token,
-    message: 'Registrierung erfolgreich! Du kannst dich jetzt anmelden.',
+    message: 'Registrierung erfolgreich!',
   });
 });
 
-// 🔐 Benutzer-Login
+// 🔐 Login mit E-Mail ODER Benutzername
 export const loginUser = asyncHandler(async (req, res) => {
-  const { email, username, password } = req.body;
+  const { identifier, password } = req.body;
 
-  if ((!email && !username) || !password) {
+  if (!identifier || !password) {
     return res.status(400).json({ message: 'Bitte Benutzername oder E-Mail und Passwort eingeben.' });
   }
 
-  const user = await User.findOne({ $or: [{ email }, { username }] });
+  const user = await User.findOne({
+    $or: [
+      { username: identifier },
+      { email: identifier.toLowerCase() }
+    ]
+  });
+
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ message: 'Ungültige Anmeldeinformationen.' });
   }
@@ -65,15 +112,15 @@ export const loginUser = asyncHandler(async (req, res) => {
     email: user.email,
     role: user.role,
     token,
+    message: 'Login erfolgreich',
   });
 });
 
-
-// 🔍 Benutzerprofil abrufen
+// 📋 Profil abrufen
 export const getUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.id)
     .select("-password")
-    .populate("savedEvents"); // <<<<< DAS HAT GEFEHLT!
+    .populate("savedEvents");
 
   if (!user) {
     return res.status(404).json({ message: "Benutzer nicht gefunden." });
@@ -82,20 +129,15 @@ export const getUserProfile = asyncHandler(async (req, res) => {
   res.json(user);
 });
 
-
 // 💾 Event speichern
 export const saveEventToUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.id);
   const eventId = req.params.eventId;
 
-  if (!eventId) {
-    return res.status(400).json({ message: 'Kein Event angegeben.' });
-  }
+  if (!eventId) return res.status(400).json({ message: 'Kein Event angegeben.' });
 
   const eventExists = await Event.findById(eventId);
-  if (!eventExists) {
-    return res.status(404).json({ message: 'Event nicht gefunden.' });
-  }
+  if (!eventExists) return res.status(404).json({ message: 'Event nicht gefunden.' });
 
   if (!user.savedEvents.includes(eventId)) {
     user.savedEvents.push(eventId);
@@ -108,21 +150,17 @@ export const saveEventToUser = asyncHandler(async (req, res) => {
 // 📤 Gespeicherte Events abrufen
 export const getSavedEvents = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.id).populate('savedEvents');
-  if (!user) {
-    return res.status(404).json({ message: 'Benutzer nicht gefunden.' });
-  }
+  if (!user) return res.status(404).json({ message: 'Benutzer nicht gefunden.' });
 
   res.status(200).json(user.savedEvents);
 });
 
-// ❌ Event aus gespeicherten Events entfernen
+// ❌ Event entfernen
 export const unsaveEventFromUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.id);
   const eventId = req.params.eventId;
 
-  if (!eventId) {
-    return res.status(400).json({ message: 'Kein Event angegeben.' });
-  }
+  if (!eventId) return res.status(400).json({ message: 'Kein Event angegeben.' });
 
   const originalLength = user.savedEvents.length;
 
@@ -135,6 +173,5 @@ export const unsaveEventFromUser = asyncHandler(async (req, res) => {
   }
 
   await user.save();
-
   res.status(200).json({ message: '🗑️ Event entfernt', savedEvents: user.savedEvents });
 });

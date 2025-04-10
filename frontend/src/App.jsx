@@ -15,12 +15,7 @@ import UserDashboardPage from "./pages/UserDashboardPage.jsx";
 import KontaktanzeigeForm from "./components/KontaktanzeigeForm.jsx";
 import SavedEvents from "./pages/SavedEvents.jsx";
 import SpendenPage from "./pages/SpendenPage.jsx";
-import WelcomeHeader from './components/WelcomeHeader.jsx';
-
-
-// In deinem <Routes> Block:
-<Route path="/saved-events" element={<SavedEvents />} />
-
+import WelcomeHeader from "./components/WelcomeHeader.jsx";
 
 import "leaflet/dist/leaflet.css";
 import { geocodeLocation, fetchEvents } from "./api/api";
@@ -31,9 +26,8 @@ const App = () => {
   const [location, setLocation] = useState(null);
   const [events, setEvents] = useState([]);
   const [user, setUser] = useState(!!localStorage.getItem("token"));
-  const [error, setError] = useState(null);
 
-  // 🌍 **Automatische Standortbestimmung**
+  // 🌍 Automatische Standortbestimmung
   useEffect(() => {
     if (!location && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -45,6 +39,7 @@ const App = () => {
     }
   }, [location]);
 
+  // 🔍 Suche ausführen (per Suchfeld)
   const handleSearch = async (query) => {
     if (!query.trim()) return;
     setSearchQuery(query);
@@ -61,6 +56,7 @@ const App = () => {
     }
   };
 
+  // 📥 Events neu laden bei Änderung der Suchanfrage
   useEffect(() => {
     const fetchAllEvents = async () => {
       try {

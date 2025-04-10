@@ -21,9 +21,7 @@ const SavedEvents = () => {
       }
 
       const res = await axios.get("/api/users/saved-events", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       setSavedEvents(res.data || []);
@@ -52,12 +50,12 @@ const SavedEvents = () => {
   const handleRatingChange = async (eventId, newRating) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`/api/events/${eventId}/rate`, { rating: newRating }, {
+      await axios.put(`/api/ratings/${eventId}`, { rating: newRating }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      fetchSavedEvents();
+      fetchSavedEvents(); // 🔄 Bewertung aktualisiert neu laden
     } catch (error) {
       console.error("Fehler beim Bewerten:", error);
     }

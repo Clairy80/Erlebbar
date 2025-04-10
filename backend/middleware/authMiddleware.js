@@ -1,81 +1,76 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 import asyncHandler from 'express-async-handler';
 import User from '../models/User.js';
 
-dotenv.config();
+// 🛡 Authentifizierung prüfen
+const protect = asyncHandler(async (req, res, next) => {
+  let token;
 
-// 🛡 **Authentifizierung prüfen**
-export const protect = asyncHandler(async (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  if (req.headers.authorization?.startsWith('Bearer')) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id).select('-password');
 
-  if (!authHeader?.startsWith('Bearer')) {
-    console.warn("⚠ Kein `Authorization`-Header erhalten.");
-    return res.status(401).json({ message: 'Nicht autorisiert: Kein Token bereitgestellt.' });
-  }
+      if (!user) {
+        return res.status(401).json({ message: 'Benutzer nicht gefunden' });
+      }
 
-  const token = authHeader.split(' ')[1];
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id).select('-password');
-
-    if (!user) {
-      console.warn("❌ Benutzer nicht gefunden.");
-      return res.status(401).json({ message: 'Nicht autorisiert: Benutzer existiert nicht mehr.' });
+      req.user = user;
+      console.log(`✅ Authentifizierter Benutzer: ${user.username}`);
+      return next();
+    } catch (error) {
+      console.error('❌ Fehler beim Token:', error);
+      return res.status(401).json({ message: 'Token ungültig oder abgelaufen' });
     }
-
-    req.user = user;
-    console.log(`✅ Authentifizierter Benutzer: ${user.username}`);
-    next();
-  } catch (error) {
-    console.error("❌ Fehler beim Verifizieren des Tokens:", error);
-    return res.status(401).json({ message: 'Nicht autorisiert: Ungültiges oder abgelaufenes Token.' });
   }
+
+  return res.status(401).json({ message: 'Kein Token vorhanden' });
 });
 
-// 📩 **E-Mail-Verifizierung**
-export const verifyEmail = asyncHandler(async (req, res, next) => {
+// 📩 Verifizierungs-Check (falls du den später nutzen willst)
+const verifyEmail = asyncHandler(async (req, res, next) => {
   if (!req.user) {
-    console.warn("⚠ Kein Benutzerobjekt in der Anfrage.");
     return res.status(401).json({ message: 'Nicht autorisiert: Kein Benutzer gefunden.' });
   }
 
   if (!req.user.isVerified) {
-    console.warn(`⚠ E-Mail nicht verifiziert: ${req.user.email}`);
-    return res.status(403).json({ message: 'E-Mail nicht verifiziert. Bitte bestätige deine E-Mail-Adresse.' });
+    return res.status(403).json({ message: 'E-Mail nicht verifiziert. Bitte E-Mail bestätigen.' });
   }
 
-  console.log(`✅ E-Mail ist verifiziert: ${req.user.email}`);
   next();
 });
 
-// 🎭 **Rolle "organizer" prüfen**
-export const authenticateOrganizer = asyncHandler(async (req, res, next) => {
+// 🎭 Veranstalter-Check
+const authenticateOrganizer = asyncHandler(async (req, res, next) => {
   if (!req.user) {
-    return res.status(401).json({ message: 'Nicht autorisiert: Kein Benutzer gefunden.' });
+    return res.status(401).json({ message: 'Nicht autorisiert: Kein Benutzerobjekt.' });
   }
 
   if (req.user.role !== 'organizer') {
-    console.warn(`❌ Kein Veranstalter: ${req.user.username} (Rolle: ${req.user.role})`);
-    return res.status(403).json({ message: 'Nur Veranstalter dürfen Events erstellen oder bearbeiten.' });
+    return res.status(403).json({ message: 'Nur Veranstalter dürfen diese Aktion durchführen.' });
   }
 
-  console.log(`✅ Veranstalter-Check bestanden: ${req.user.username}`);
   next();
 });
 
-// ♿ **Barrierefreiheitspflicht für Offline-Events**
-export const checkAccessibilityForOfflineEvent = asyncHandler(async (req, res, next) => {
-  const { isOnline, accessibilityOptions } = req.body;
+// ♿ Pflichtprüfung für Barrierefreiheit
+const checkAccessibilityForOfflineEvent = asyncHandler(async (req, res, next) => {
+  const { isOnline, accessibilityOptions, needsCompanion } = req.body;
 
-  // Falls es sich um ein Offline-Event handelt, muss mindestens eine Barrierefreiheit-Option ausgewählt sein
-  if (!isOnline && (!accessibilityOptions || accessibilityOptions.length === 0)) {
-    console.warn("❌ Barrierefreiheit fehlt bei Offline-Event");
+  if (!isOnline && (!accessibilityOptions || accessibilityOptions.length === 0) && !needsCompanion) {
     return res.status(400).json({
-      message: 'Barrierefreiheit ist bei Offline-Events erforderlich. Bitte wähle mindestens eine Option aus.'
+      message: 'Offline-Events müssen entweder barrierefrei sein oder eine Begleitperson erlauben.'
     });
   }
 
   next();
 });
+
+// ✅ Alles exportieren
+export {
+  protect,
+  verifyEmail,
+  authenticateOrganizer,
+  checkAccessibilityForOfflineEvent,
+};

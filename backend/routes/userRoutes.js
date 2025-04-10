@@ -5,7 +5,7 @@ import {
   getUserProfile,
   saveEventToUser,
   getSavedEvents,
-  unsaveEventFromUser 
+  unsaveEventFromUser
 } from '../controllers/userController.js';
 
 import { protect } from '../middleware/authMiddleware.js';
@@ -21,12 +21,13 @@ router.post('/login', loginUser);
 // 📜 Benutzerprofil abrufen (geschützt)
 router.get('/profile', protect, getUserProfile);
 
-// 💾 Event speichern (geschützt)
+// 💾 Event speichern
 router.put('/save-event/:eventId', protect, saveEventToUser);
 
-// 📤 Gespeicherte Events abrufen (geschützt)
+// 📤 Gespeicherte Events abrufen
 router.get('/saved-events', protect, getSavedEvents);
 
+// 🗑️ Event entfernen
 router.delete('/unsave-event/:eventId', protect, unsaveEventFromUser);
 
 export default router;

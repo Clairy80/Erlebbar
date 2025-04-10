@@ -1,104 +1,25 @@
 import mongoose from 'mongoose';
 
 const eventSchema = new mongoose.Schema({
-  organizer: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'User', 
-    required: [true, "Ein Organizer ist erforderlich!"]
-  },
-  title: { 
-    type: String, 
-    required: [true, "Titel ist erforderlich"], 
-    trim: true 
-  },
-  description: { 
-    type: String, 
-    trim: true, 
-    default: "" 
-  },
-  date: { 
-    type: Date, 
-    required: [true, "Datum ist erforderlich"],
-    validate: {
-      validator: function (value) {
-        return !isNaN(new Date(value).getTime());
-      },
-      message: "Ungültiges Datum"
-    }
-  },
-  time: { 
-    type: String, 
-    required: [true, "Uhrzeit ist erforderlich"],
-    match: [/^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/, "Ungültige Uhrzeit. Format: HH:mm"]
-  },
-  isOnline: {
-    type: Boolean,
-    default: false
-  },
-  // 📍 Physische Adresse (Pflicht bei Offline-Events)
-  street: { 
-    type: String, 
-    required: function () { return !this.isOnline; }, 
-    trim: true 
-  },
-  postalCode: { 
-    type: String, 
-    required: function () { return !this.isOnline; }, 
-    match: [/^\d{4,6}$/, "Ungültige Postleitzahl"]
-  },
-  city: { 
-    type: String, 
-    required: function () { return !this.isOnline; }, 
-    trim: true 
-  },
-  country: { 
-    type: String, 
-    default: "Deutschland",
-    trim: true 
-  },
-  // 🌍 Koordinaten (Pflicht bei Offline-Events)
-  lat: { 
-    type: Number,
-    required: function () { return !this.isOnline; }
-  },
-  lon: { 
-    type: Number,
-    required: function () { return !this.isOnline; }
-  },
-  // 📩 Kontaktinformationen (Immer erforderlich)
-  contactEmail: { 
-    type: String,
-    required: [true, "Eine Kontakt-E-Mail ist erforderlich"],
-    match: [/^\S+@\S+\.\S+$/, "Ungültige E-Mail-Adresse"]
-  },
-  contactPhone: { 
-    type: String,
-    required: [true, "Eine Telefonnummer ist erforderlich"],
-    match: [/^\+?[0-9\s\-()]{7,20}$/, "Ungültige Telefonnummer"]
-  },
-  // ♿ Barrierefreiheitsoptionen
-  accessibilityOptions: { 
-    type: [String], 
-    default: [] 
-  },
-  // 👨‍👩‍👧‍👦 Zielgruppe
-  suitableFor: {
-    type: String,
-    default: "Alle"
-  },
-  // ⭐ Bewertung (optional, durch Nutzer)
-  rating: {
-    type: Number,
-    min: 0,
-    max: 5,
-    default: null
-  },
-  // 👥 Begleitgesuch (optional)
-  needsCompanion: {
-    type: Boolean,
-    default: false
-  }
+  organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  title: { type: String, required: true },
+  description: String,
+  date: { type: Date, required: true },
+  time: { type: String, required: true },
+  eventType: { type: String, default: 'Konzert' },
+  isOnline: { type: Boolean, default: false },
+  street: String,
+  postalCode: String,
+  city: String,
+  country: { type: String, default: 'Deutschland' },
+  lat: Number,
+  lon: Number,
+  contactEmail: { type: String, required: true },
+  contactPhone: { type: String, required: true },
+  accessibilityOptions: [String],
+  rating: { type: Number, default: null },
+  suitableFor: { type: String, default: 'Alle' },
+  needsCompanion: { type: Boolean, default: false }
 }, { timestamps: true });
 
-const Event = mongoose.model('Event', eventSchema);
-export default Event;
+export default mongoose.model('Event', eventSchema);

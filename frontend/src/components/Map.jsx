@@ -2,20 +2,18 @@ import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import EventList from "./EventList";
-import api from "../api"; // 🔄 Dein zentrales Axios-Setup
+import api from "../api";
 
 const eventIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
   iconSize: [30, 45],
   iconAnchor: [15, 45],
-  popupAnchor: [1, -34],
 });
 
 const locationIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684910.png",
   iconSize: [30, 45],
   iconAnchor: [15, 45],
-  popupAnchor: [1, -34],
 });
 
 const RecenterAutomatically = ({ lat, lon }) => {
@@ -43,45 +41,20 @@ const haversineDistance = ([lat1, lon1], [lat2, lon2]) => {
 const Map = ({ location }) => {
   const [events, setEvents] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [nearbyEvents, setNearbyEvents] = useState([]);
   const [transportStops, setTransportStops] = useState([]);
+  const [mapCenter, setMapCenter] = useState([51.1657, 10.4515]);
+  const [nearbyEvents, setNearbyEvents] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [mapCenter, setMapCenter] = useState([51.1657, 10.4515]);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-
-  const handleSaveEvent = async (eventId) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Bitte zuerst einloggen, um Events zu speichern.");
-        return;
-      }
-
-      await api.put(`/api/users/save-event/${eventId}`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      alert("🎉 Event wurde gespeichert!");
-    } catch (err) {
-      console.error("❌ Fehler beim Speichern:", err);
-      alert("Fehler beim Speichern. Bitte versuch es später erneut.");
-    }
-  };
 
   useEffect(() => {
-    if (location && location.length === 2) {
+    if (location?.length === 2) {
       setMapCenter(location);
     } else if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setMapCenter([latitude, longitude]);
-        },
-        (error) => {
-          console.warn("⚠️ Geolocation fehlgeschlagen oder blockiert:", error);
-        }
+        ({ coords }) => setMapCenter([coords.latitude, coords.longitude]),
+        (err) => console.warn("⚠️ Geolocation fehlgeschlagen:", err)
       );
     }
   }, [location]);
@@ -89,35 +62,33 @@ const Map = ({ location }) => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      setError(null);
       try {
-        const [eventsRes, locationsRes, stopsRes] = await Promise.all([
+        const [eventsRes, locsRes, stopsRes] = await Promise.all([
           api.get("/api/events"),
           api.get("/api/locations"),
           api.get(`/api/public-transport?lat=${mapCenter[0]}&lon=${mapCenter[1]}`)
         ]);
-
         setEvents(eventsRes.data || []);
-        setLocations(locationsRes.data || []);
+        setLocations(locsRes.data || []);
         setTransportStops(stopsRes.data || []);
       } catch (err) {
-        console.error(err);
         setError("Daten konnten nicht geladen werden.");
+        console.error("❌ Fehler beim Laden der Daten:", err?.response?.data || err.message);
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [mapCenter]);
 
   useEffect(() => {
     if (events.length && mapCenter) {
-      const filteredEvents = events.filter((event) => {
-        const distance = haversineDistance(mapCenter, [parseFloat(event.lat), parseFloat(event.lon)]);
-        return distance <= 50;
+      const filtered = events.filter((event) => {
+        if (!event.lat || !event.lon) return false;
+        const dist = haversineDistance(mapCenter, [parseFloat(event.lat), parseFloat(event.lon)]);
+        return dist <= 50;
       });
-      setNearbyEvents(filteredEvents);
+      setNearbyEvents(filtered);
     }
   }, [events, mapCenter]);
 
@@ -125,12 +96,9 @@ const Map = ({ location }) => {
     <div>
       {error && <p style={{ color: "red" }}>{error}</p>}
       {loading && <p>⏳ Karten-Daten werden geladen...</p>}
-      
-      <MapContainer center={mapCenter} key={mapCenter.join("-")} zoom={12} style={{ height: "500px", width: "100%" }}>
-        <TileLayer
-          attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+
+      <MapContainer center={mapCenter} zoom={12} style={{ height: "500px", width: "100%" }} key={mapCenter.join("-")}>
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <RecenterAutomatically lat={mapCenter[0]} lon={mapCenter[1]} />
 
         {nearbyEvents.map((event) => (
@@ -145,24 +113,10 @@ const Map = ({ location }) => {
               <p>{event.description || "Keine Beschreibung verfügbar."}</p>
               <p>📅 {event.date ? new Date(event.date).toLocaleDateString() : "Datum unbekannt"}</p>
               <p>🕒 {event.time || "Uhrzeit unbekannt"}</p>
-              <p>📍 {event.location || "Ort unbekannt"}</p>
+              <p>📍 {event.street || "Unbekannte Straße"}, {event.city || "Unbekannte Stadt"}</p>
               <p>⭐ {event.rating ? `${event.rating} Sterne` : "Noch keine Bewertung"}</p>
-              <p>♿ {event.accessible ? "Barrierefrei" : "Nicht barrierefrei"}</p>
+              <p>♿ {event.accessibilityOptions?.length > 0 ? "Barrierefrei" : "Nicht barrierefrei"}</p>
               <p>👨‍👩‍👧‍👦 {event.suitableFor || "Keine Angabe"}</p>
-              <button
-                onClick={() => handleSaveEvent(event._id)}
-                style={{
-                  marginTop: "0.5rem",
-                  padding: "0.3rem 0.6rem",
-                  backgroundColor: "#646cff",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer"
-                }}
-              >
-                💾 Event speichern
-              </button>
             </Popup>
           </Marker>
         ))}
@@ -216,11 +170,7 @@ const Map = ({ location }) => {
       {!loading && nearbyEvents.length > 0 && <EventList events={nearbyEvents} />}
 
       {!loading && nearbyEvents.length === 0 && (
-        <p
-          role="status"
-          aria-live="polite"
-          style={{ color: "red", textAlign: "center", marginTop: "1rem", fontWeight: "bold" }}
-        >
+        <p role="status" aria-live="polite" style={{ textAlign: "center", color: "gray", marginTop: "1rem" }}>
           🔍 Keine Events in deiner Nähe gefunden.
         </p>
       )}
